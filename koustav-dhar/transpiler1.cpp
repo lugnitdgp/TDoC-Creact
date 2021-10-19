@@ -37,6 +37,7 @@ public:
     bool Parser(std::string getData, int lineNo, bool removeSpaces = true) {
         if (removeSpaces == true)   // if new line
             getData = removeFrontSpaces(getData);
+        // std::cout << getData << "\n";
         if (getData[0] == '<') {    // if it's a tag
             if (getData[1] != '/') {    // if opening tag
                 std::string getTag = stripBraces(getData);
@@ -49,10 +50,10 @@ public:
             } else {    // if closing tag
                 if (getData.substr(2, 3) == "log") {    // if print tag closing
                     setParserData.push_back(dataMapper.find("/log")->second);
-                } else if (dataMapper.find(getData.substr(2, getData.length() - 3)) != dataMapper.end()){   // if other valid tag closing
+                } else if (dataMapper.find(getData.substr(2, getData.find('>') - 2)) != dataMapper.end()){   // if other valid tag closing
                     setParserData.push_back(dataMapper.find("/")->second);
                 } else {    // if wrong closing tag
-                    std::cout << "Error at Line " << lineNo << ": Couldn\'t recognize tag \'" << getData.substr(2, getData.length() - 3) << "\'.\n";
+                    std::cout << "Error at Line " << lineNo << ": Couldn\'t recognize tag \'" << getData.substr(2, getData.find('>') - 2) << "\'.\n";
                     return false;
                 }
             }
