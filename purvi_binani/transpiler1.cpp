@@ -55,19 +55,20 @@ void Parser(std::string getData)
     getData = removeFrontSpaces(getData);
     if (getData[0] == '<')
     {
-        if (getData[getData.substr(1).find('<') + 2] == '/')
+        std::string getTag = stripBraces(getData);
+        std::string helper_string = getData.substr(getData.find('>') + 1, getData.length() - (getData.find('>') + 1));
+        if (helper_string.find('<') != std::string::npos && helper_string[helper_string.find('<') + 1] == '/')
         {
-            std::string getTag = stripBraces(getData);
+
             if (dataMapper.find(getTag) != dataMapper.end())
             {
                 setParserData.push_back(dataMapper.find(getTag)->second);
             }
-            std::string getText = getData.substr(getData.find('>') + 1);
-            std::string toRemove = getText.substr(getText.find('/') - 1);
-            getText.erase(getText.find(toRemove), toRemove.length());
-            setParserData.push_back(getText);
+            std::string toRemove = helper_string.substr(helper_string.find('/') - 1);
+            helper_string.erase(helper_string.find(toRemove), toRemove.length());
+            setParserData.push_back(helper_string);
             std::string getEndTag = stripBraces(getData.substr(getData.substr(1).find('<') + 1));
-            if (getEndTag.substr(2, 3) == "log")
+            if (getEndTag.substr(1, 3) == "log")
             {
                 setParserData.push_back(dataMapper.find("/log")->second);
             }
