@@ -1,15 +1,7 @@
-# CReact -The Esoteric programming Language
+# Creact - HTML based esolang
 
-## Project Structure
+## Steps
 
-### `main.cpp`
-
-Main entrypoint to the Creact application.
-
-### `parser.cpp`
-
-Main logic behind parsing the Creact Source Code
-
-### `table.cpp`
-
-Contains the symbols map
+1. Build the map
+2. Read the input file
+3.

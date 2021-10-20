@@ -55,10 +55,93 @@ void replaceTokensWithCode(std::vector<std::string> &tokens) {
   }
 }
 
+void setVariableNames(std::string statement, const std::string &dataType) {
+  int position = 0;
+  while (position < (int)statement.size()) {
+    std::size_t stPos = statement.find_first_not_of(" =,", position);
+    std::size_t enPos = statement.find_first_of(" =,\n", stPos);
+    if (stPos == std::string::npos) {
+      break;
+    }
+    if (enPos == std::string::npos) {
+      enPos = statement.size();
+    }
+    std::string currentVariableName = statement.substr(stPos, enPos - stPos);
+    variablesDataTypeMap[currentVariableName] = tagsMap[dataType];
+    position = enPos;
+  }
+}
+
+void handleInputFromUser(std::string &token) {
+  // erase last two chars
+  token.erase(token.size() - 2, 2);
+  std::stringstream ss(token);
+  std::string varName;
+  std::string finalScanfParam = "scanf(\"";
+  std::string variableNames = "";
+  ss >> varName;  // to ignore the take at front
+  while ((ss >> varName)) {
+    finalScanfParam += typeSpecifierMap[variablesDataTypeMap[varName]];
+    variableNames += "&" + varName + ", ";
+  }
+  finalScanfParam +=
+      "\"," + variableNames.substr(0, variableNames.size() - 2) + ");";
+  token = finalScanfParam;
+}
+
 void processTokens(std::vector<std::string> &tokens) {
   for (int i = 0; i < (int)tokens.size(); i++) {
-    if (tokens[i] == "printf()" && tokens[i + 2] == ";") {
-      tokens[i] = "printf(\"" + tokens[i + 1] + "\");";
+    if (tokens[i].size() > 2 && tokens[i][tokens[i].size() - 1] == '/' &&
+        tokens[i][tokens[i].size() - 2] == '/') {
+      // taking input from user
+      handleInputFromUser(tokens[i]);
+    } else if (*tokens[i].rbegin() == '/') {
+      // some variable declaration occurring
+      std::string dataType = tokens[i].substr(0, 2);
+      std::string variableDeclarations =
+          tokens[i].substr(2, tokens[i].size() - 3);
+      setVariableNames(variableDeclarations, dataType);
+      tokens[i] = tagsMap[dataType] + " " + variableDeclarations + ";";
+    } else if (tokens[i] == "printf()" && tokens[i + 2] == ";") {
+      std::string &currentToken = tokens[i + 1];
+      std::string formatString = "", variableNamesWithComma = "";
+
+      for (int pos = 0; pos < (int)currentToken.size(); pos++) {
+        // check is pos and pos+1 is ${
+        if (pos < (int)currentToken.size() - 1 && currentToken[pos] == '$' &&
+            currentToken[pos + 1] == '{') {
+          // get the variable name
+
+          bool varMatchFound = false;
+
+          std::size_t varEndPos = currentToken.find_first_of('}', pos + 2);
+          if (varEndPos != std::string::npos) {
+            std::string varName =
+                currentToken.substr(pos + 2, varEndPos - pos - 2);
+
+            if (variablesDataTypeMap.find(varName) !=
+                variablesDataTypeMap.end()) {
+              formatString += typeSpecifierMap[variablesDataTypeMap[varName]];
+              variableNamesWithComma += varName + ", ";
+              varMatchFound = true;
+            }
+          }
+
+          if (!varMatchFound) {
+            formatString += "$";
+          } else {
+            pos = varEndPos;
+          }
+        } else {
+          formatString += currentToken[pos];
+        }
+      }
+      variableNamesWithComma =
+          variableNamesWithComma.substr(0, variableNamesWithComma.size() - 2);
+      tokens[i] =
+          "printf(\"" + formatString + "\"" +
+          (variableNamesWithComma.size() ? ", " + variableNamesWithComma : "") +
+          ");";
       tokens.erase(tokens.begin() + i + 1, tokens.begin() + i + 3);
     }
   }
