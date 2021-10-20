@@ -21,6 +21,7 @@ void refDataset()
     dataMapper.insert({"int", "%d"});
     dataMapper.insert({"char", "%c"});
     dataMapper.insert({"float", "%f"});
+    dataMapper.insert({"take", "scanf()"});
 }
 
 void writeCode()
@@ -133,6 +134,13 @@ void printParser()
             setParserData[i] = string_const;
             setParserData.erase(std::next(setParserData.begin(), i + 1), std::next(setParserData.begin(), i + 3));
         }
+        else if (setParserData[i] == "scanf()")
+        {
+            std::unordered_map<std::string, std::string>::iterator itr;
+            string_const = setParserData[i].substr(0, 6) + '"' + variableMapper.find(setParserData[i + 1])->second + '"' + ",&" + setParserData[i + 1]+')'+';';
+            setParserData[i] = string_const;
+            setParserData.erase((setParserData.begin() + i + 1));
+        }
     }
 }
 
@@ -166,10 +174,38 @@ void Parser(std::string getData)
         }
         else if (getData[getData.length() - 1] == '>' && getData[getData.length() - 2] == '/')
         {
-            getData = getData.substr(1, getData.length() - 3);
-            getData = spaceDebug(getData);
-            setParserData.push_back(dataMapper.find(getData.substr(0, 2))->second + getData.substr(2, getData.length() - 2) + ";");
-            IOparser(getData);
+            if (getData[getData.length() - 3] == '/')
+            {
+                getData = getData.substr(1, getData.length() - 4);
+                getData = spaceDebug(getData) + " ";
+                std::vector<std::string> tmp;
+                std::string stf;
+                for (int i = 0; i < getData.length(); i++)
+                {
+                    if (getData[i] != ' ')
+                    {
+                        stf += getData[i];
+                    }
+                    else
+                    {
+                        if (stf.length() != 0)
+                            tmp.push_back(stf);
+                        stf = "";
+                    }
+                }
+                if (tmp[0] == "take")
+                {
+                    setParserData.push_back(dataMapper.find(tmp[0])->second);
+                    setParserData.push_back(tmp[1]);
+                }
+            }
+            else
+            {
+                getData = getData.substr(1, getData.length() - 3);
+                getData = spaceDebug(getData);
+                setParserData.push_back(dataMapper.find(getData.substr(0, 2))->second + getData.substr(2, getData.length() - 2) + ";");
+                IOparser(getData+',');
+            }
         }
         else if (getData[1] != '/')
         {
@@ -199,6 +235,8 @@ void Parser(std::string getData)
         }
     }
 }
+
+
 int main(int argc, char const *argv[])
 {
     refDataset();
