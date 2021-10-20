@@ -24,18 +24,21 @@ void writeCode(){
 }
 
 
-//initial spaces are removed as they are not required in the c file.
-std::string removeFrontSpaces(std::string getData){
-    
-    for(int i=0; i<getData.length(); i++){
-        if(getData[i] != ' '){
-            getData = getData.substr(i, getData.length()-i);
-            break;
-        }
+// a 2-pointer based approach to remove the spaces
+std::string spaceDebug(std::string getData){
+    long long p1 =  0, p2 = getData.length()-1;
+    while(getData[p1] == ' ' || getData[p2]== ' '){
+        if(getData[p1] == ' ')
+            p1++;
+        if(getData[p2] == ' ')
+            p2--;
     }
+    return getData.substr(p1, p2-p1+1);
+}
 
-    return getData;
-
+//stripping the braces
+std::string stripBraces(std::string getData){
+    return getData.substr(1, getData.find('>')-1);
 }
 
 void printParser(){
@@ -51,19 +54,28 @@ void printParser(){
     
 }
 
-//stripping the braces
-std::string stripBraces(std::string getData){
-    return getData.substr(1, getData.find('>')-1);
-}
-
 
 void Parser(std::string getData){
-    getData = removeFrontSpaces(getData);
+    getData = spaceDebug(getData);
     if(getData[0]=='<'){
+        // if(getData[getData.length()-2]=='/' && getData[getData.length()-2 ]=='>'){
+        //     getData =  
+
+        // }    
+
         if(getData[1] !='/'){
             std::string getTag = stripBraces(getData);
+            getTag =  spaceDebug(getTag);
             if(dataMapper.find(getTag) != dataMapper.end()) {
-                setParserData.push_back(dataMapper.find(getTag)->second);
+
+                if(getTag == "log" && getData.substr(getData.length() - 5, 4)=="/log"){
+                    setParserData.push_back(dataMapper.find(getTag)->second);
+                    long long length = getData.substr(getData.find('>')+1, getData.length()-getData.find('>')).length()-6;
+                    setParserData.push_back( getData.substr(getData.find('>')+1, length));
+                    setParserData.push_back(";");
+                }
+                else 
+                    setParserData.push_back(dataMapper.find(getTag)->second);
             }
 
         } else {
