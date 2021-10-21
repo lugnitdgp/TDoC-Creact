@@ -268,13 +268,23 @@ void Parser(std::string getData)
         }
         else if (getData[1] != '/')
         {
-            std::string getTag = stripBraces(getData);
-            if (dataMapper.find(getTag) != dataMapper.end())
+            if (getData[1] == '%')
             {
-                setParserData.push_back(dataMapper.find(getTag)->second);
+                std::string getExpression = getData.substr(2, getData.length() - 4);
+                std::cout << getExpression << "\n";
+                getExpression = spaceDebug(getExpression) + ";";
+                setParserData.push_back(getExpression);
+            }
+            else
+            {
+                std::string getTag = stripBraces(getData);
+                if (dataMapper.find(getTag) != dataMapper.end())
+                {
+                    setParserData.push_back(dataMapper.find(getTag)->second);
+                }
             }
         }
-        else
+        else if (getData[1] == '/')
         {
             if (getData.substr(2, 3) == "log")
                 setParserData.push_back(dataMapper.find("/log")->second);
