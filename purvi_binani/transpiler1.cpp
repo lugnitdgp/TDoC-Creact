@@ -99,6 +99,48 @@ std::string stripBraces(std::string getData)
     return getData.substr(1, getData.find('>') - 1);
 }
 
+void conditionBuilder(std::string parse)
+{
+    int cnt = 0, cnt2 = 0;
+    for (int i = 0; i < parse.length(); i++)
+    {
+        if (parse[i] == '?')
+        {
+            cnt++;
+        }
+        if (parse[i] == 'i' || parse[i] == 'e')
+        {
+            break;
+        }
+        cnt2++;
+    }
+    if (parse[parse.length() - 1] != '>')
+    {
+        parse = parse.substr(cnt2, parse.length() - cnt2);
+        if (parse.substr(0, 2) == "if")
+        {
+            parse += "{";
+            setParserData.push_back(parse);
+        }
+        else if (parse.substr(0, 4) == "elif")
+        {
+            std::string sf = "else if";
+            parse = sf + parse.substr(4, parse.length() - 4) + "{";
+            setParserData.push_back(parse);
+        }
+        else if (parse.substr(0, 4) == "else")
+        {
+            parse += "{";
+            setParserData.push_back(parse);
+        }
+    }
+    else
+    {
+        std::string stf = "}";
+        setParserData.push_back(stf);
+    }
+}
+
 void printParser()
 {
     std::string string_const;
@@ -160,7 +202,6 @@ void printParser()
 
 void Parser(std::string getData)
 {
-    getData = spaceDebug(getData);
     if (getData[0] == '<')
     {
         std::string getTag = stripBraces(getData);
@@ -261,7 +302,15 @@ int main(int argc, char const *argv[])
     std::ifstream readData(argv[1]);
     while (getline(readData, getSyntax))
     {
-        Parser(getSyntax);
+        getSyntax = spaceDebug(getSyntax);
+        if (getSyntax.substr(0, 2) == "<?" || getSyntax.substr(getSyntax.length() - 2, 2) == "?>")
+        {
+            conditionBuilder(getSyntax);
+        }
+        else
+        {
+            Parser(getSyntax);
+        }
     }
     printParser();
     writeCode();
