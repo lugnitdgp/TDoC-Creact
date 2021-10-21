@@ -54,7 +54,7 @@ std::string arrangeIOSyntax(std::string syntax){
 }
 
 void parseIO(std::string syntax){
-    syntax = arrangeIOSyntax(syntax);
+    syntax = arrangeIOSyntax(syntax) + " ";
     std::vector<std::string> tokens;
     std::string s;
 
@@ -66,22 +66,25 @@ void parseIO(std::string syntax){
             s = "";
         }
     }
-
+    tokens.push_back(",");
     for(int i=0; i<tokens.size(); i++){
+        // std::cout<<tokens[i]<<"\n";
         if(tokens[i] == "=" || tokens[i] == ","){
             typeTable.insert({tokens[i-1], symbolTable.find(symbolTable.find(tokens[0])->second)->second});
         }
     }
+    // for(auto i:typeTable){
+    //     std::cout<<i.first<<"\n";
+    // }
 }
 
 // to get the processed "C" syntax from "CReact"
 void parseSyntax(std::string syntax){
     syntax = trimFrontSpaces(syntax);
     // std::cout<<syntax<<"\n";
-    // syntax = <take a/>
 
     // for syntax which are symbols
-    if(syntax[0] == '<'){
+    if(syntax[0] == '<' || syntax[0] == '?'){
 
         // for opening symbols
         if(syntax[1] != '/'){
@@ -90,7 +93,7 @@ void parseSyntax(std::string syntax){
             if(syntax[syntax.length()-1] == '>' && syntax[syntax.length()-2] == '/'){
 
                 if(syntax[syntax.length()-3] == '/'){
-                    // std:/:cout<<syntax<<"/n";
+                    // <take a,b //>
                     syntax = syntax.substr(1, syntax.length()-4);
                     syntax = trimFrontSpaces(syntax) + " ";
 
@@ -98,7 +101,7 @@ void parseSyntax(std::string syntax){
                     std::string s;
 
                     for(int i=0; i<syntax.length(); i++){
-                        if(syntax[i] != ' '){
+                        if(syntax[i] != ' ' && syntax[i] != ','){
                             s = s + syntax[i];
                         } else{
                             if(s.length() != 0)
@@ -108,11 +111,13 @@ void parseSyntax(std::string syntax){
                     }
 
                     if(tokens[0] == "take"){
+                        std::string str="";
                         parsedData.push_back(symbolTable.find(tokens[0])->second);
-                        parsedData.push_back(tokens[1]);
-                    }
-
-                    std::cout<<syntax<<"/n";
+                        for(int i=1; i<tokens.size(); i++){
+                            str += tokens[i] + " ";
+                        }
+                        parsedData.push_back(str);
+                    }   
 
                 } else{
                     // <in c=9/>
@@ -120,6 +125,41 @@ void parseSyntax(std::string syntax){
                     syntax = trimFrontSpaces(syntax);
                     parsedData.push_back(symbolTable.find(syntax.substr(0,2))->second + syntax.substr(2, syntax.length()-2) + ";");
                     parseIO(syntax);
+                }
+            }
+
+            // integrating arithmatic expression
+            else if(syntax[1] == '%'){
+                std::vector<std::string> tokens;
+                std::string str="";
+                for(int i=2; i<syntax.length(); i++){
+                    if(syntax[i] == '%')
+                        break;
+                    str += syntax[i];
+                }
+                str += ';';
+                parsedData.push_back(str);
+            }
+
+            // conditional statement integration
+            else if(syntax.substr(0, 2) == "<?" || syntax == "?>"){
+                // std::cout<<"Working"<<"\n";
+                if(syntax != "?>"){
+                    syntax = syntax.substr(2, syntax.length()-2);
+                    syntax = trimFrontSpaces(syntax);
+
+                    if(syntax.substr(0,2) == "if"){
+                        syntax = syntax + '{';
+                        parsedData.push_back(syntax);
+                    } else if(syntax.substr(0,4) == "elif"){
+                        syntax = "else if" + syntax.substr(4, syntax.length()-4) + '{';
+                        parsedData.push_back(syntax);
+                    } else if(syntax.substr(0,4) == "else"){
+                        syntax = syntax + '{';
+                        parsedData.push_back(syntax);
+                    }
+                } else{
+                    parsedData.push_back("}");
                 }
             }
 
@@ -156,7 +196,7 @@ void parseSyntax(std::string syntax){
                 parsedData.push_back(symbolTable.find("/")->second);
             }
         }
-    } else{ // for syntax which are printable statements
+    } else if(syntax[0] != '?'){ // for syntax which are printable statements
 
         // if previous element is print statement, push the printable statement as it is
         if(parsedData[parsedData.size()-1] == "printf()"){
@@ -178,7 +218,7 @@ void processPrintStatements(){
 
             // processing variables initialised during run time before printing,
             // throwing error for invalid variable names
-            for(int j=0; j<parsedData[i+1].length(); j++){
+            for(int j=0; j<parsedData[i+1].size(); j++){
                 if(parsedData[i+1].substr(j,2) == "${"){ // checks if a variable is to be printed
                     int pos = parsedData[i+1].substr(j).find('}') + j;
                     std::string name = parsedData[i+1].substr(j+2, pos-(j+2));
@@ -186,6 +226,7 @@ void processPrintStatements(){
                         specifiers += typeTable.find(name)->second;
                         varNames += (varNames == "" ? "" : ",") + name;
                     } else{ // else throws error
+                        std::cout<<"p\n";
                         std::cout<<"Non-Recognised Symbol '" + name + "'...terminating script\n";
                         exit(0);
                     }
@@ -199,7 +240,24 @@ void processPrintStatements(){
             parsedData[i] = element;
             parsedData.erase(std::next(parsedData.begin(), i+1), std::next(parsedData.begin(), i+3));
         } else if(parsedData[i] == "scanf()"){ // for 'take' statements
-            element = parsedData[i].substr(0,6) + '"' + typeTable.find(parsedData[i+1])->second + '"' + ",&" + parsedData[i+1] + ");";
+            std::string specifiers="", varNames="", name="";
+
+            for(int j=0; j<parsedData[i+1].size(); j++){
+                if(parsedData[i+1][j] != ' '){
+                    name += parsedData[i+1][j];
+                } else{
+                    if(typeTable.find(name) == typeTable.end()){
+                        std::cout<<"s\n";
+                        std::cout<<"Non-Recognised Symbol '" + name + "'...terminating script\n";
+                        exit(0);
+                    }
+                    specifiers += typeTable.find(name)->second + " ";
+                    name = "&" + name;
+                    varNames += ((varNames == "") ? "" : ",") + name;
+                    name = "";
+                }
+            }            
+            element = parsedData[i].substr(0,6) + '"' + specifiers.substr(0, specifiers.length() - 1) + '"' + "," + varNames + ");";
             parsedData[i] = element;
             parsedData.erase((parsedData.begin() + i+1));
         }

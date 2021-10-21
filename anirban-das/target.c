@@ -1,10 +1,22 @@
 #include<stdio.h>
 
 void main(){
- 
-int a, b=7, var3;
-scanf("%d",&a);
-char ab='c', cd='f'; 
-int var; 
-printf("hello %d \n",a);
+
+int b=1;
+if(b%2 == 1){
+if(b>2){
+printf("%d",b);
+}
+else{
+printf("hello");
+}
+}
+else if(b==3){
+ b = b*4 ;
+printf("%d",b);
+}
+else{
+ b = b*2 ;
+printf("%d",b);
+}
 }
