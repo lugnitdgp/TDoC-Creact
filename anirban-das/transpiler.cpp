@@ -19,9 +19,11 @@ void makeTable(){
     symbolTable.insert({"/log", ";"});
     symbolTable.insert({"in", "int"});
     symbolTable.insert({"ch", "char"});
+    symbolTable.insert({"db", "double"});
     symbolTable.insert({"take", "scanf()"});
     symbolTable.insert({"int", "%d"});
     symbolTable.insert({"char", "%c"});
+    symbolTable.insert({"double", "%lf"});
 }
 
 // to remove the indentation spaces
