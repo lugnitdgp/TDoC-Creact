@@ -1,0 +1,39 @@
+<htpl> 
+	<main>
+		<in a,b,c/>
+		<log>Enter a number
+		</log>
+		<take a/>
+		<log>
+		The number entered : ${a}
+		</log><log>Enter a number
+		</log>
+		<take b/>
+		<log>
+		The number entered : ${b}
+		</log>
+		<log>Enter a number
+		</log>
+		<take c/>
+		<log>
+		The number entered : ${c}
+		The maximum number entered : 
+		</log>
+		<? if(a>b) <?? if(a>c)<log>${a}</log> ??><?? else<log>${c}</log>??>?>
+         	<? elif(a==b)         	
+         	<?? if(a>=c)
+         	<log>${a}</log>
+         	??>
+         	<??
+         	 else
+         	  <log>${c}</log>
+         	??>
+         	?>
+         	<? else
+         	<?? if(b>c)
+         	<log>${b}</log>
+         	??>
+         	<?? else <log>${c}</log> ??>
+         	?>
+	</main>
+</htpl>
