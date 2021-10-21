@@ -2,6 +2,7 @@
 
 void main(){
 
-int var1=8, var2=9;
-char che=9, che2=10;
+int var1 =6;
+scanf("%d",&var1);
+printf("Hello %d",var1);
 }

@@ -24,6 +24,7 @@ void refDataset(){
     dataMapper.insert({"ch", "char"});
     dataMapper.insert({"int", "%d"});
     dataMapper.insert({"char", "%c"});
+    dataMapper.insert({"take","scanf()"});
 }
 
 //write code to c file 
@@ -53,14 +54,41 @@ std::string stripBraces(std::string getData){
     return getData.substr(1, getData.find('>')-1);
 }
 
+//function for constructing printf in c
 void printParser(){
     std::string string_const;
     for(int i=0;i<setParserData.size(); i++){
 
         if(setParserData[i]=="printf()"){
-            string_const = setParserData[i].substr(0,7) + '"' + setParserData[i+1] + '"' + ")" + setParserData[i+2];
+            // hello ${var3} \n
+            int pos;
+            std::string formatSpecifiers = "", varNames="", var="";
+            for(int j=0; j<setParserData[i+1].length(); j++){
+                if(setParserData[i+1].substr(j,2) == "${"){
+                    pos = setParserData[i+1].find("}", j);
+                    var = setParserData[i+1].substr(j+2, pos-(j+2));
+                    if(variableMapper.find(var)!=variableMapper.end()){
+                        formatSpecifiers += variableMapper.find(var)->second;
+                        varNames += ((varNames == "") ? "":",") + var;
+                    }
+                    else{
+                        formatSpecifiers += setParserData[i+1].substr(j, pos-j+1);
+                    }
+                    j = pos;
+                }
+                else{
+                    formatSpecifiers += setParserData[i+1][j];
+                }
+            }
+
+            string_const = setParserData[i].substr(0,7) + '"' + formatSpecifiers + '"' + ((varNames == "") ? "" : ",") + varNames + ")" + setParserData[i+2];
             setParserData[i] = string_const;
             setParserData.erase(std::next(setParserData.begin(), i+1), std::next(setParserData.begin(), i+3));
+        }
+        else if(setParserData[i]=="scanf()"){
+            string_const = setParserData[i].substr(0, 6) + '"' + variableMapper.find(setParserData[i+1])->second + '"' + ",&"+setParserData[i+1];
+            setParserData[i] = string_const;
+            setParserData.erase((setParserData.begin()+i+1));
         }
     }
     
@@ -116,11 +144,34 @@ void Parser(std::string getData){
     if(getData[0]=='<'){
         //for the variable declaration part
         if(getData[getData.length()-2]=='/' && getData[getData.length()-1]=='>'){
-            getData = getData.substr(1, getData.length()-3);
-            getData = spaceDebug(getData);
-            //inserting the entire delcaration fo the variable
-            setParserData.push_back(dataMapper.find(getData.substr(0,2))->second + getData.substr(2, getData.length()-2) + ";" );
-            IOparser(getData);
+            if(getData[getData.length()-3]=='/'){
+                getData = getData.substr(1, getData.length()-4);
+                getData = spaceDebug(getData)+" ";
+                std::vector<std::string>temp;
+                std::string st;
+                for(int i=0; i<getData.length(); i++){
+                    if(getData[i] != ' '){
+                        st = st + getData[i];
+                    }
+                    else{
+                        if(st.length()!=0)
+                            temp.push_back(st);
+                            st = "";
+                    }
+                }
+                if(temp[0]=="take"){
+                    setParserData.push_back((dataMapper.find(temp[0])->second));
+                    setParserData.push_back(temp[1]);
+                }
+            }
+            else{
+                getData = getData.substr(1, getData.length()-3);
+                getData = spaceDebug(getData);
+                //inserting the entire delcaration fo the variable
+                setParserData.push_back(dataMapper.find(getData.substr(0,2))->second + getData.substr(2, getData.length()-2) + ";" );
+                IOparser(getData);
+            }
+            
         }    
 
         else if(getData[1] !='/'){
