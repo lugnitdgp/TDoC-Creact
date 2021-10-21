@@ -2,16 +2,16 @@
 
 void main(){
 
-int b=1;
+int a=3, b=2, c=2;
 if(b%2 == 1){
-if(b>2){
+if(c>2){
 printf("%d",b);
 }
 else{
-printf("hello");
+printf("%d",c);
 }
 }
-else if(b==3){
+else if(a==3){
  b = b*4 ;
 printf("%d",b);
 }

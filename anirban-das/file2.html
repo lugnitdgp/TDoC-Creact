@@ -1,15 +1,15 @@
 <htpl>
     <main>
-        <in b=1 />
+        <in a=3, b=2, c=2 />
         <? if(b%2 == 1)
-            <? if(b>2)
+            <? if(c>2)
                 <log>${b}</log>
             ?>
             <? else
-                <log>hello</log>
+                <log>${c}</log>
             ?>
         ?>
-        <? elif(b==3)
+        <? elif(a==3)
             <% b = b*4 %>
             <log>${b}</log>
         ?>
