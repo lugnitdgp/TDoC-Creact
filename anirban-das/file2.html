@@ -1,0 +1,21 @@
+<htpl>
+    <main>
+        <in a=3, b=2, c=2 />
+        <? if(b%2 == 1)
+            <? if(c>2)
+                <log>${b}</log>
+            ?>
+            <? else
+                <log>${c}</log>
+            ?>
+        ?>
+        <? elif(a==3)
+            <% b = b*4 %>
+            <log>${b}</log>
+        ?>
+        <? else
+            <% b = b*2 %>
+            <log>${b}</log>
+        ?>
+    </main>
+</htpl>
