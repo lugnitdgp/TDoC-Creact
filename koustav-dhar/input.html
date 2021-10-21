@@ -1,0 +1,15 @@
+<htpl>
+    <main>
+        <log>Hello, World\n</log><log> - From Koustav\n</log>
+        <in num1=10,num2/>
+        <take num2/>
+        <%num1+=num2%7%>
+        <log>${num1}\n</log>
+        <?if(num1<5)
+            <log>
+                Inside If\n
+            </log>
+        ?>
+        <?elif((num1>7) && (num1<20))<?? if(num1<15)<log>Inside Nested If\n</log>??>?>
+    </main>
+</htpl>
