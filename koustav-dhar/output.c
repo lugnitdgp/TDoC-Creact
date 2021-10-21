@@ -5,9 +5,15 @@ void main(){
 printf("Hello, World\n");
 printf("- From Koustav\n");
 int num1=10,num2;
-char ch1='x',ch2;
-float fl1=1.23,fl2;
-printf("num1 = %d ch1 = %c fl1 = %f\n",num1,ch1,fl1);
-scanf("%c%d%f",&ch2,&num2,&fl2);
-printf("num2 = %d ch2 = %c fl2 = %f\n",num2,ch2,fl2);
+scanf("%d",&num2);
+num1+=num2%7;
+printf("%d\n",num1);
+if(num1<5){
+printf("Inside If\n");
+}
+else if((num1>7) && (num1<20)){
+if(num1<15){
+printf("Inside Nested If\n");
+}
+}
 }

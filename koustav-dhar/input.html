@@ -2,10 +2,14 @@
     <main>
         <log>Hello, World\n</log><log> - From Koustav\n</log>
         <in num1=10,num2/>
-        <ch ch1='x',ch2/>
-        <fl fl1=1.23,fl2/>
-        <log>num1 = ${num1} ch1 = ${ch1} fl1 = ${fl1}\n</log>
-        <take ch2,num2,fl2/>
-        <log>num2 = ${num2} ch2 = ${ch2} fl2 = ${fl2}\n</log>
+        <take num2/>
+        <%num1+=num2%7%>
+        <log>${num1}\n</log>
+        <?if(num1<5)
+            <log>
+                Inside If\n
+            </log>
+        ?>
+        <?elif((num1>7) && (num1<20))<?? if(num1<15)<log>Inside Nested If\n</log>??>?>
     </main>
 </htpl>
