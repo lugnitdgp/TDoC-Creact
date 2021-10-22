@@ -171,6 +171,40 @@ void iteratorBuilders(std::string parse)
     }
 }
 
+std::vector<std::string> fxEval(std::string st)
+{
+    std::vector<std::string> store;
+    std::string newgetData = "";
+    for (int i = 0; i < st.length(); i++)
+    {
+        if (st[i] == '+' || st[i] == '+' || st[i] == '-' || st[i] == '*' || st[i] == '/' || st[i] == '%' || st[i] == '^')
+        {
+            newgetData += ' ';
+            newgetData += st[i];
+            newgetData += ' ';
+        }
+        else
+        {
+            newgetData += st[i];
+        }
+    }
+    newgetData += ' ';
+    std::string tmp = "";
+    for (int i = 0; i < newgetData.length(); i++)
+    {
+        if (newgetData[i] != ' ')
+        {
+            tmp += newgetData[i];
+        }
+        else
+        {
+            store.push_back(tmp);
+            tmp = "";
+        }
+    }
+    return store;
+}
+
 void printParser()
 {
     std::string string_const;
@@ -179,6 +213,7 @@ void printParser()
         if (setParserData[i] == "printf()")
         {
             int pos;
+            std::vector<std::string> expressEval;
             std::string formatSpecifiers = "", varNames = "", varName = "";
             for (int j = 0; j < setParserData[i + 1].size(); j++)
             {
@@ -186,12 +221,20 @@ void printParser()
                 {
                     pos = setParserData[i + 1].substr(j).find('}') + j;
                     varName = setParserData[i + 1].substr(j + 2, pos - (j + 2));
-                    if (variableMapper.find(varName) != variableMapper.end())
+                    expressEval = fxEval(varName);
+                    int check = 1;
+                    for (int k = 0; k < expressEval.size(); i++)
                     {
-                        formatSpecifiers += variableMapper.find(varName)->second;
-                        varNames += ((varNames == "") ? "" : ",") + varName;
+                        if (variableMapper.find(expressEval[k]) != variableMapper.end())
+                        {
+                            formatSpecifiers += variableMapper.find(expressEval[k])->second;
+                            varNames += ((varNames == "") ? "" : ",") + varName;
+                            check = 0;
+                            break;
+                        }
                     }
-                    else
+
+                    if (check == 1)
                     {
                         formatSpecifiers += setParserData[i + 1].substr(j, pos - j + 1);
                     }
@@ -202,7 +245,7 @@ void printParser()
                     formatSpecifiers += setParserData[i + 1][j];
                 }
             }
-            string_const = setParserData[i].substr(0, 7) + '"' + formatSpecifiers + '"' + ((varNames == "") ? "" : ",") + varNames + ")" + setParserData[i + 2];
+            string_const = setParserData[i].substr(0, 7) + '"' + formatSpecifiers + '"' + ((varNames == "") ? "" : ",(") + varNames + ((varNames == "") ? "" : ")") + ")" + setParserData[i + 2];
             setParserData[i] = string_const;
             setParserData.erase(std::next(setParserData.begin(), i + 1), std::next(setParserData.begin(), i + 3));
         }
