@@ -2,5 +2,7 @@
 
 void main(){
 
-printf("Hello World sdikjghs dfgre rt4 tsdg ");
+int a=21, n=7;
+char c='g';
+printf("crcrcrcr jjjjj %d, %d xixixx",a,n);
 }
