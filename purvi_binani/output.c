@@ -2,11 +2,10 @@
 
 void main(){
 
-int a=21,b;
-char c='*',d='&';
-float e;
-a=a*2;
-printf("Enter an integer and a float value respectively ");
-scanf("%d %f",&b,&e);
-printf("The values are %d, %d, %c, %c, %f",a,b,c,d,e);
+int b,i=0;
+printf("Enter an integer");
+scanf("%d",&b);
+for(i=0;i<b;i++){
+printf("%d\n",i);
+}
 }
