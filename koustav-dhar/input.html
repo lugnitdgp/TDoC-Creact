@@ -1,0 +1,19 @@
+<htpl>
+    <main>
+        <log>Hello, World\n</log><log> - From Koustav\n</log>
+        <in num1=10,num2=5,num3/>
+        <log>\nEnter number for factorial:</log>
+        <take num3/>
+        <fx voila('y') />
+        <fx num2=fact(num3) />
+        <log>${ans}\n</log>
+    </main>
+    <fx in fact(in num)>
+        <in i=1,ans=1/>
+        <# w (i<num) <% ans*=i %> <% i++ %> #>
+        <throw ans/>
+    </fx>
+    <fx void voila(ch x)>
+        <log>Hello ${x}!\n</log>
+    </fx>
+</htpl>
