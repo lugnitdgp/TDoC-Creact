@@ -22,9 +22,12 @@ void refDataset(){
     dataMapper.insert({"/log", ";"});
     dataMapper.insert({"in", "int"});
     dataMapper.insert({"ch", "char"});
+    dataMapper.insert({"fl", "float"});
     dataMapper.insert({"int", "%d"});
     dataMapper.insert({"char", "%c"});
+    dataMapper.insert({"float", "%f"});
     dataMapper.insert({"take","scanf()"});
+
 }
 
 //write code to c file 
@@ -86,7 +89,7 @@ void printParser(){
             setParserData.erase(std::next(setParserData.begin(), i+1), std::next(setParserData.begin(), i+3));
         }
         else if(setParserData[i]=="scanf()"){
-            string_const = setParserData[i].substr(0, 6) + '"' + variableMapper.find(setParserData[i+1])->second + '"' + ",&"+setParserData[i+1];
+            string_const = setParserData[i].substr(0, 6) + '"' + variableMapper.find(setParserData[i+1])->second + '"' + ",&"+setParserData[i+1] + ");";
             setParserData[i] = string_const;
             setParserData.erase((setParserData.begin()+i+1));
         }
@@ -169,7 +172,7 @@ void Parser(std::string getData){
                 getData = spaceDebug(getData);
                 //inserting the entire delcaration fo the variable
                 setParserData.push_back(dataMapper.find(getData.substr(0,2))->second + getData.substr(2, getData.length()-2) + ";" );
-                IOparser(getData);
+                IOparser(getData+',');
             }
             
         }    

@@ -2,7 +2,8 @@
 
 void main(){
 
-int var1 =6;
-scanf("%d",&var1);
-printf("Hello %d",var1);
+float var1;
+char hf='p', kl='r';
+scanf("%f",&var1);
+printf("Hello %f %c %c",var1,hf,kl);
 }
