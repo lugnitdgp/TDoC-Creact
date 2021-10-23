@@ -7,6 +7,7 @@
 std::unordered_map<std::string, std::string> dataMapper;
 std::unordered_map<std::string, std::string> variableMapper;
 std::vector<std::string> setParserData;
+std::vector<std::string> functionHeader;
 
 void refDataset()
 {
@@ -30,6 +31,13 @@ void writeCode()
     for (int i = 0; i < setParserData.size() - 1; i++)
     {
         writeFile << setParserData[i] << "\n";
+        if (i == 0)
+        {
+            for (int k = 0; k < functionHeader.size(); k++)
+            {
+                writeFile << functionHeader[k] << "\n";
+            }
+        }
     }
 }
 
@@ -301,7 +309,21 @@ void Parser(std::string getData)
         }
         else if (getData[getData.length() - 1] == '>' && getData[getData.length() - 2] == '/')
         {
-            if (getData[getData.length() - 3] == '/')
+            if (getData.find('f') != std::string::npos && getData[getData.find('f') + 1] == 'x')
+            {
+                getData = getData.substr(1, getData.length() - 3);
+                getData = spaceDebug(getData);
+                std::string ins_string = getData.substr(3, getData.length() - 3) + ";";
+                setParserData.push_back(ins_string);
+            }
+            else if (getData.find('t') != std::string::npos && getData.substr(getData.find('t'), 5) == "throw")
+            {
+                getData = getData.substr(1, getData.length() - 3);
+                getData = spaceDebug(getData);
+                std::string ins_string = "return " + getData.substr(6, getData.length() - 6) + ";";
+                setParserData.push_back(ins_string);
+            }
+            else if (getData[getData.length() - 3] == '/')
             {
                 getData = getData.substr(1, getData.length() - 4);
                 getData = spaceDebug(getData) + " ";
@@ -341,7 +363,55 @@ void Parser(std::string getData)
         }
         else if (getData[1] != '/')
         {
-            if (getData[1] == '%')
+            if (getData.find('f') != std::string::npos && getData[getData.find('f') + 1] == 'x')
+            {
+                getData = getData.substr(1, getData.length() - 2);
+                getData = spaceDebug(getData);
+                std::string str_builder = "";
+                for (int i = 0; i < getData.length(); i++)
+                {
+                    if (getData[i] == '(' || getData[i] == ')' || getData[i] == ',')
+                    {
+                        str_builder += ' ';
+                        str_builder += getData[i];
+                        str_builder += ' ';
+                    }
+                    else
+                    {
+                        str_builder += getData[i];
+                    }
+                }
+                getData = str_builder;
+                str_builder = "";
+                std::string stf = "";
+                for (int i = 0; i < getData.length(); i++)
+                {
+                    if (getData[i] != ' ')
+                    {
+                        str_builder += getData[i];
+                    }
+                    else
+                    {
+                        if (str_builder == "in" || str_builder == "ch" || str_builder == "fl")
+                        {
+                            stf += dataMapper.find(str_builder)->second + ' ';
+                        }
+                        else if (str_builder == "void")
+                        {
+                            stf += str_builder + ' ';
+                        }
+                        else
+                        {
+                            stf += str_builder;
+                        }
+                        str_builder = "";
+                    }
+                }
+                functionHeader.push_back(stf.substr(2, stf.length() - 2) + ";");
+                stf += "{";
+                setParserData.push_back(stf.substr(2, stf.length() - 2));
+            }
+            else if (getData[1] == '%')
             {
                 std::string getExpression = getData.substr(2, getData.length() - 4);
                 getExpression = spaceDebug(getExpression) + ";";
