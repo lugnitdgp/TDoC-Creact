@@ -1,0 +1,61 @@
+<htpl> 
+	<main>
+		<in a,b,c/>
+		<log>Enter a number
+		</log>
+		<take a/>
+		<log>
+		The number entered : ${a}
+		</log>
+		<log>Enter a number
+		</log>
+		<take b/>
+		<log>
+		The number entered : ${b}
+		</log>
+		<fx disp()/>
+		<fx c=gcd(a,b) />
+		<log>
+			GCD of ${a} and ${b} : ${c}
+		</log>		
+		<log>Enter a number
+		</log>
+		<take c/>
+		<log>
+		The number entered : ${c}
+		The maximum number entered : 
+		</log>
+		<? if(a>b) <?? if(a>c)<log>${a}</log> ??><?? else<log>${c}</log>??>?>
+         	<? elif(a==b)         	
+         	<?? if(a>=c)
+         	<log>${a}</log>
+         	??>
+         	<??
+         	 else
+         	  <log>${c}</log>
+         	??>
+         	?>
+         	<? else
+         	<?? if(b>c)
+         	<log>${b}</log>
+         	??>
+         	<?? else <log>${c}</log> ??>
+         	?>
+         	<log>Loops</log>
+		<# f  (a=1@b=3;a < 3;a++) <log> Outer ${a}</log><% b=2 %>
+		<## w(b>=0) <log>Inner ${b}</log> <% b=b-1 %>
+		##>
+		#>
+	</main>
+	<fx in gcd(in a,in b)>
+		<? if(a==0) 
+		<throw b/> 
+		?> 
+		<? else 
+		<throw gcd(b%a,a)/> 
+		?> 
+		</gcd>
+		<fx in disp()>
+			<log>Inside disp</log>
+		</disp>
+</htpl>
