@@ -3,11 +3,15 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <time.h>
 
 std::unordered_map<std::string, std::string> dataMapper;
 std::unordered_map<std::string, std::string> variableMapper;
 std::vector<std::string> setParserData;
 std::vector<std::string> functionHeader;
+std::vector<std::string> headers;
+std::vector<std::string> var_keeper;
+std::unordered_map<std::string, std::string> vectorCounter;
 
 void refDataset()
 {
@@ -33,9 +37,17 @@ void writeCode()
         writeFile << setParserData[i] << "\n";
         if (i == 0)
         {
+            for (int k = 0; k < headers.size(); k++)
+            {
+                writeFile << headers[k] << "\n";
+            }
             for (int k = 0; k < functionHeader.size(); k++)
             {
                 writeFile << functionHeader[k] << "\n";
+            }
+            for (int k = 0; k < var_keeper.size(); k++)
+            {
+                writeFile << var_keeper[k] << "\n";
             }
         }
     }
@@ -176,6 +188,59 @@ void iteratorBuilders(std::string parse)
     else
     {
         setParserData.push_back("}");
+    }
+}
+
+void memoryPlay(std::string getData)
+{
+    getData = getData.substr(2, getData.length() - 4);
+    getData = spaceDebug(getData);
+    if (getData.substr(0, 6) == "stream")
+    {
+        headers.push_back("#include <stdlib.h>");
+        headers.push_back("#define predefsz 2");
+        std::string _datatype = getData.substr(getData.find('(') + 1, getData.find(')') - getData.find('(') - 1);
+
+        if (_datatype == "in")
+        {
+            srand(time(0));
+            std::string varRect = getData.substr(getData.find(')') + 2, getData.length() - getData.find(')') + 1);
+            std::string sizeDef = varRect + std::to_string(rand()).substr(0, 3);
+            std::string ins_var = "c" + std::to_string(rand()).substr(0, 3);
+
+            vectorCounter.insert({varRect, ins_var});
+            vectorCounter.insert({ins_var, sizeDef});
+            functionHeader.push_back("int " + ins_var + "= 0;");
+            setParserData.push_back("int " + sizeDef + " = " + "predefsz;");
+            std::string instance1 = dataMapper.find(_datatype)->second + " " + '*' + varRect + " = (int*)malloc(sizeof(int)*" + sizeDef + ");";
+            setParserData.push_back(instance1);
+            if (var_keeper.empty())
+            {
+                std::string ins_var1;
+                std::ifstream readFile("./modules/memoryalloc.txt");
+                while (getline(readFile, ins_var1))
+                {
+                    var_keeper.push_back(ins_var1);
+                }
+            }
+        }
+    }
+    else
+    {
+        if (getData.substr(getData.find('.') + 1, 4) == "plus")
+        {
+            std::string ins_var = getData.substr(0, getData.find('.')) + "=" + "checkout(" + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ",&" + vectorCounter.find(vectorCounter.find(getData.substr(0, getData.find('.')))->second)->second + ',' + getData.substr(0, getData.find('.')) + ");";
+            std::string ins_var3 = "*(" + getData.substr(0, getData.find('.')) + "+" + vectorCounter.find(getData.substr(0, getData.find('.')))->second + "++)=" + getData.substr(getData.find('(') + 1, getData.length() - getData.find('(') - 2) + ";";
+            setParserData.push_back(ins_var + ins_var3);
+        }
+        else if (getData.substr(getData.find('.') + 1, 5) == "minus")
+        {
+            setParserData.push_back(vectorCounter.find(getData.substr(0, getData.find('.')))->second + "--" + ';');
+        }
+        else if (getData.substr(getData.find('.') + 1, 4) == "show")
+        {
+            setParserData.push_back("show(" + getData.substr(0, getData.find('.')) + "," + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ");");
+        }
     }
 }
 
@@ -413,9 +478,33 @@ void Parser(std::string getData)
             }
             else if (getData[1] == '%')
             {
-                std::string getExpression = getData.substr(2, getData.length() - 4);
-                getExpression = spaceDebug(getExpression) + ";";
-                setParserData.push_back(getExpression);
+                if (getData.find('[') == std::string::npos)
+                {
+                    std::string getExpression = getData.substr(2, getData.length() - 4);
+                    getExpression = spaceDebug(getExpression) + ";";
+                    setParserData.push_back(getExpression);
+                }
+                else
+                {
+                    int c1 = 0, c2 = 0;
+                    getData = getData.substr(2, getData.length() - 4);
+                    getData = spaceDebug(getData);
+                    std::string p1 = spaceDebug(getData.substr(0, getData.find('=')));
+                    std::string p2 = spaceDebug(getData.substr(getData.find('=') + 1, getData.length() - getData.find('=') - 1));
+                    if (p1.find('[') != std::string::npos && p1.find(']') != std::string::npos)
+                    {
+                        std::string var_name = p1.substr(0, p1.find('['));
+                        std::string val = p1.substr(p1.find('[') + 1, p1.find(']') - p1.find('[') - 1);
+                        p1 = "*(" + var_name + "+" + val + ")";
+                    }
+                    if (p2.find('[') != std::string::npos && p2.find(']') != std::string::npos)
+                    {
+                        std::string var_name2 = p2.substr(0, p2.find('['));
+                        std::string val2 = p2.substr(p2.find('[') + 1, p2.find(']') - p2.find('[') - 1);
+                        p2 = "*(" + var_name2 + "+" + val2 + ")";
+                    }
+                    setParserData.push_back(p1 + " = " + p2 + ";");
+                }
             }
             else
             {
@@ -462,6 +551,10 @@ int main(int argc, char const *argv[])
         else if (getSyntax.substr(0, 2) == "<#" || getSyntax.substr(getSyntax.length() - 2, 2) == "#>")
         {
             iteratorBuilders(getSyntax);
+        }
+        else if (getSyntax.substr(0, 2) == "<<")
+        {
+            memoryPlay(getSyntax);
         }
         else
         {
