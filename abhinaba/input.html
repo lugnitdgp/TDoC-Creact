@@ -1,10 +1,22 @@
 <htpl>
     <main>
-        <fl var1 />
-        <ch hf='p', kl='r' />
-        <take var1 //>
-        <log>
-           Hello ${var1} ${hf} ${kl}
-        </log>
+        <in var1,var2,var3/>
+        <take var1, var2, var3 //>
+        <? if(var1<var2)
+            <?? if(var1<var3)
+                <log>${var1}</log>
+            ??>
+            <?? else
+                <log>${var3}</log>
+            ??>
+        ?>
+        <? else
+            <?? if(var2<var3)
+                <log>${var2}</log>
+            ??>
+            <?? else
+                <log>${var3}</log>
+            ??>
+        ?>
     </main>
 </htpl>
