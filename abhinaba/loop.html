@@ -1,0 +1,16 @@
+<htpl>
+    <main>
+        <in var1, i=0/>
+        <log>Enter a value: </log>
+        <take var1 //>
+        <log>Printing for loop: </log>
+        <# f(i=0, i<var1, i++)
+            <log>${i} </log> 
+        #>
+        <log>Printing while loop: </log>
+        <# w(i<var1)
+            <log>${i}</log>
+            <% i++ %>
+        #>
+    </main>
+</htpl>
