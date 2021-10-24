@@ -1,0 +1,11 @@
+<htpl>
+    <main>
+        <in var1, i=0/>
+        <log>Enter a value: </log>
+        <take var1 //>
+        <log>Printing first ${var1} values of 2's table\n</log>
+        <# f(i=1, i<=var1, i++)
+            <log>${i*2}\n</log> 
+        #>
+    </main>
+</htpl>

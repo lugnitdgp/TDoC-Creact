@@ -57,6 +57,34 @@ std::string stripBraces(std::string getData){
     return getData.substr(1, getData.find('>')-1);
 }
 
+//tokenizing expression inside of printf()
+std::vector<std::string> fxEval(std::string st){
+    std::vector<std::string> store;
+    std::string evalgetData;
+    for(int i=0; i<st.length(); i++){
+        if(st[i] == '+' || st[i] == '-' || st[i] == '*' || st[i] == '/' || st[i] == '%' || st[i] == '^'){
+            evalgetData += ' ';
+            evalgetData += st[i];
+            evalgetData += ' ';
+        }
+        else{
+            evalgetData += st[i];
+        }
+    }
+    evalgetData += ' ';
+    std::string helper_st = "";
+    for(int i=0; i<evalgetData.length(); i++){
+        if(evalgetData[i] != ' '){
+            helper_st += evalgetData[i];
+        }
+        else{
+            store.push_back(helper_st);
+            helper_st = "";
+        }
+    } 
+    return store;
+}
+
 //function for constructing printf in c
 void printParser(){
     std::string string_const;
@@ -66,25 +94,39 @@ void printParser(){
             // hello ${var3} \n
             int pos;
             std::string formatSpecifiers = "", varNames="", var="";
-            for(int j=0; j<setParserData[i+1].length(); j++){
-                if(setParserData[i+1].substr(j,2) == "${"){
-                    pos = setParserData[i+1].find("}", j);
-                    var = setParserData[i+1].substr(j+2, pos-(j+2));
-                    if(variableMapper.find(var)!=variableMapper.end()){
-                        formatSpecifiers += variableMapper.find(var)->second;
-                        varNames += ((varNames == "") ? "":",") + var;
+            std::vector<std::string> expressEval;
+            for(int j=0; j<setParserData[i + 1].length(); j++){
+
+                if(setParserData[i + 1].substr(j, 2) == "${"){
+
+                    pos = setParserData[i + 1].find("}", j);
+                    var = setParserData[i + 1].substr(j+2, pos-(j+2));
+                    expressEval = fxEval(var);
+                    int check = 1;
+                    for(int k=0; k<expressEval.size(); i++){
+                        if(variableMapper.find(expressEval[k])!=variableMapper.end()){
+
+                            formatSpecifiers += variableMapper.find(expressEval[k])->second;
+                            varNames += ((varNames == "") ? "":",") + var;
+                            check = 0;
+                            break;
+                        }
                     }
-                    else{
+                    
+                    if(check==1){
+                        //parses anything to string
                         formatSpecifiers += setParserData[i+1].substr(j, pos-j+1);
                     }
+
                     j = pos;
                 }
                 else{
+
                     formatSpecifiers += setParserData[i+1][j];
                 }
             }
 
-            string_const = setParserData[i].substr(0,7) + '"' + formatSpecifiers + '"' + ((varNames == "") ? "" : ",") + varNames + ")" + setParserData[i+2];
+            string_const = setParserData[i].substr(0,7) + '"' + formatSpecifiers + '"' + ((varNames == "") ? "" : ",") +  ((varNames == "") ? "" : "(")  +varNames+ ((varNames == "") ? "" : ")")  + ")" + setParserData[i+2];
             setParserData[i] = string_const;
             setParserData.erase(std::next(setParserData.begin(), i+1), std::next(setParserData.begin(), i+3));
         }
