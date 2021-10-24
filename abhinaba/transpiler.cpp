@@ -13,6 +13,8 @@ std::unordered_map<std::string, std::string>variableMapper;
 //vector to store the individual statements converted to C
 std::vector<std::string> setParserData;
 
+std::vector<std::string> functionHeader;
+
 //dataMapper reference dataset -- stores the necessary mappings
 void refDataset(){
     dataMapper.insert({"htpl" , "#include<stdio.h>\n"});
@@ -36,6 +38,11 @@ void writeCode(){
     for(int i=0; i<setParserData.size()-1; i++){
         // std::cout<<setParserData[i]<<" ";
         writeFile<<setParserData[i]<<"\n";
+        if(i==0){
+            for(int k=0; k<functionHeader.size(); k++){
+                writeFile << functionHeader[k] <<"\n"; 
+            }
+        }
     }
 }
 
@@ -245,7 +252,23 @@ void Parser(std::string getData){
     if(getData[0]=='<'){
         //for the variable declaration part
         if(getData[getData.length()-2]=='/' && getData[getData.length()-1]=='>'){
-            if(getData[getData.length()-3]=='/'){
+           
+        // <fx var= func(params) />  
+        //func
+           if((getData.find('f') != std::string::npos) && getData[getData.find('f')+1]=='x'){
+               getData = getData.substr(1, getData.length()-3);
+               getData = spaceDebug(getData);
+               std::string instance_string = getData.substr(3, getData.length()-3)+";";
+               setParserData.push_back(instance_string);
+           }
+           //throw part
+           else if(getData.find('t') != std::string::npos && getData.substr(getData.find('t'), 5) == "throw"){
+               getData = getData.substr(1, getData.length()-3);
+               getData = spaceDebug(getData);
+               std::string instance_string = "return " + getData.substr(6, getData.length()-6)+";";
+               setParserData.push_back(instance_string);
+           }
+           else  if(getData[getData.length()-3]=='/'){
                 getData = getData.substr(1, getData.length()-4);
                 getData = spaceDebug(getData)+" ";
                 std::vector<std::string>temp;
@@ -278,31 +301,68 @@ void Parser(std::string getData){
             }
             
         }   
-
         else if(getData[1] !='/'){
-            //arithmetic operations
-            if(getData[1] == '%'){
-                std::string getExpression = getData.substr(2, getData.length() - 4);
-                // std::cout << getExpression << "\n";
-                getExpression = spaceDebug(getExpression) + ";";
-                setParserData.push_back(getExpression);
-            }
-
-            else {
-                std::string getTag = stripBraces(getData);
-                getTag =  spaceDebug(getTag);
-                if(dataMapper.find(getTag) != dataMapper.end()) {
-
-                    if(getTag == "log" && getData.substr(getData.length() - 5, 4)=="/log"){
-                        setParserData.push_back(dataMapper.find(getTag)->second);
-                        long long length = getData.substr(getData.find('>')+1, getData.length()-getData.find('>')).length()-6;
-                        setParserData.push_back( getData.substr(getData.find('>')+1, length));
-                        setParserData.push_back(";");
-                    }
-                    else 
-                        setParserData.push_back(dataMapper.find(getTag)->second);
+            if(getData.find('f')!=std::string::npos && getData[getData.find('f')+1]=='x'){
+            
+            getData = getData.substr(1, getData.length()-2);
+            getData = spaceDebug(getData);
+            // std::cout<<getData<<" ";
+            std::string string_builder = "";
+            for(int i=0; i<getData.length(); i++){
+                if(getData[i] == '(' || getData[i] == ')' || getData[i] == ','){
+                    //don't use +=  for string here
+                    string_builder = string_builder + ' ' + getData[i] + ' '; 
+                }
+                else{
+                    string_builder += getData[i];
                 }
             }
+            // std::cout<<string_builder<<" ";
+            getData  = string_builder;
+            string_builder = "";
+            std::string stf = "";
+            for(int i=0; i<getData[i]; i++){
+                if(getData[i]!=' '){
+                    string_builder += getData[i];
+                } else{
+                    if(string_builder=="in" || string_builder=="ch" || string_builder=="fl"){
+                        stf += dataMapper.find(string_builder)->second + ' ';
+                    } else if(string_builder=="void"){
+                        stf += string_builder + ' '; 
+                    } else{
+                        stf += string_builder;
+                    }
+                    string_builder= "";
+                }
+            }
+            functionHeader.push_back(stf.substr(2, stf.length()-2)+";");
+            stf += "{";
+            setParserData.push_back(stf.substr(2, stf.length()-2));
+
+        }
+        //arithmetic operations
+        else if(getData[1] == '%'){
+            std::string getExpression = getData.substr(2, getData.length() - 4);
+            // std::cout << getExpression << "\n";
+            getExpression = spaceDebug(getExpression) + ";";
+            setParserData.push_back(getExpression);
+        }
+
+        else {
+            std::string getTag = stripBraces(getData);
+            getTag =  spaceDebug(getTag);
+            if(dataMapper.find(getTag) != dataMapper.end()) {
+
+                if(getTag == "log" && getData.substr(getData.length() - 5, 4)=="/log"){
+                    setParserData.push_back(dataMapper.find(getTag)->second);
+                    long long length = getData.substr(getData.find('>')+1, getData.length()-getData.find('>')).length()-6;
+                    setParserData.push_back( getData.substr(getData.find('>')+1, length));
+                    setParserData.push_back(";");
+                }
+                else 
+                    setParserData.push_back(dataMapper.find(getTag)->second);
+            }
+        }
 
         } 
         else if(getData[1]=='/'){
