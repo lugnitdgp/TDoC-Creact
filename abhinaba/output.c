@@ -2,22 +2,16 @@
 
 void main(){
 
-int var1,var2,var3;
-scanf("%d %d %d",&var1,&var2,&var3);
-if(var1<var2){
-if(var1<var3){
-printf("Minimum is %d",var1);
+int var1, i=0;
+printf("Enter a value: ");
+scanf("%d",&var1);
+printf("Printing for loop: ");
+for(i=0; i<var1; i++){
+printf("%d ",i);
 }
-else{
-printf("Minimum is %d",var3);
-}
-}
-else{
-if(var2<var3){
-printf("Minimum is %d",var2);
-}
-else{
-printf("Minimum is %d",var3);
-}
+printf("Printing while loop: ");
+while(i<var1){
+printf("%d",i);
+i++;
 }
 }

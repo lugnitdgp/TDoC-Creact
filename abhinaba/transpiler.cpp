@@ -238,10 +238,10 @@ void Parser(std::string getData){
         }   
 
         else if(getData[1] !='/'){
-            
+            //arithmetic operations
             if(getData[1] == '%'){
                 std::string getExpression = getData.substr(2, getData.length() - 4);
-                std::cout << getExpression << "\n";
+                // std::cout << getExpression << "\n";
                 getExpression = spaceDebug(getExpression) + ";";
                 setParserData.push_back(getExpression);
             }
@@ -277,6 +277,27 @@ void Parser(std::string getData){
     }
 }
 
+void iteratorBuilder(std::string parse){
+    if(parse[parse.length()-1] != '>'){
+        parse = parse.substr(2, parse.length()-2);
+        parse = spaceDebug(parse);
+        if(parse[0]=='f'){
+            for(int i=0; i<parse.length(); i++){
+                if(parse[i]==',')
+                    parse[i] = ';';
+            }
+            parse = "for" + parse.substr(1, parse.length()-1) + "{";
+            setParserData.push_back(parse);
+        } else if(parse[0]=='w'){
+            parse = "while" + parse.substr(1, parse.length()-1) + "{";
+            setParserData.push_back(parse);
+        }
+
+    } else{
+        setParserData.push_back("}");
+    }
+}
+
 int main(int argc, char const *argv[])
 {
     refDataset();
@@ -288,6 +309,9 @@ int main(int argc, char const *argv[])
         if (getSyntax.substr(0, 2) == "<?" || getSyntax.substr(getSyntax.length() - 2, 2) == "?>")
         {
             conditionBuilder(getSyntax);
+        }
+        else if (getSyntax.substr(0, 2) == "<#" || getSyntax.substr(getSyntax.length() - 2, 2) == "#>"){
+            iteratorBuilder(getSyntax);
         }
         else
         {
