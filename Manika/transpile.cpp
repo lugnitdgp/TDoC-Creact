@@ -49,30 +49,82 @@ std::string stripBrace(std::string getData)
 {
     return getData.substr(1, getData.find('>') - 1);
 }
+std::vector<std::string> fxEval(std::string st)
+{
+    std::vector<std::string> store;
+    std::string newgetData = "";
+    for (int i = 0; i < st.length(); i++)
+    {
+        if (st[i] == '+' || st[i] == '-' || st[i] == '*' || st[i] == '/' || st[i] == '%' || st[i] == '^')
+        {
+            newgetData += ' ';
+            newgetData += st[i];
+            newgetData += ' ';
+        }
+        else
+        {
+            newgetData += st[i];
+        }
+    }
+    newgetData += ' ';
+    std::string tmp = "";
+    for (int i = 0; i < newgetData.length(); i++)
+    {
+        if (newgetData[i] != ' ')
+        {
+            tmp += newgetData[i];
+        }
+        else
+        {
+            store.push_back(tmp);
+            tmp = "";
+        }
+    }
+    for(auto it:varibaleMapper){
+        std::cout<<it.first<<" "<<it.second<<"\n";
+    }
+    for(auto it:store){
+        std::cout<<it<<"\n";
+    }
+    return store;
+}
 
 void printParser()
 {
     std::string string_const;
-    for (int i = 0; i < setperserData.size() - 1; i++)
+    for (int i = 0; i < setperserData.size(); i++)
     {
         if (setperserData[i] == "printf()")
         {
             int pos;
             std::string formatSpecifiers = "", varNames = "", varName = "";
+            std::vector<std::string> exval;
             for (int j = 0; j < setperserData[i + 1].size(); j++)
             {
-                if (setperserData[i + 1].substr(j, 2) == "${")
+                if (setperserData[i + 1].substr(j,2) == "${")
                 {
                     pos = setperserData[i + 1].substr(j).find('}') + j;
                     varName = setperserData[i + 1].substr(j + 2, pos - (j + 2));
-                    if (varibaleMapper.find(varName) != varibaleMapper.end())
+                    exval = fxEval(varName);
+                    bool check = 1;
+                    for(auto it:exval) std::cout<<it<<"\n";
+                    for (int k = 0; k < exval.size(); k++)
                     {
-                        formatSpecifiers += varibaleMapper.find(varName)->second;
-                        varNames += ((varNames == "") ? "" : ",") + varName;
+                        if (varibaleMapper.find(exval[k]) != varibaleMapper.end())
+                        {
+                            formatSpecifiers += varibaleMapper.find(exval[k])->second;
+                            varNames += ((varNames == "") ? "" : ",") + varName;
+                            std::cout<<formatSpecifiers<<"\n";
+                            check = 0;
+                            break;
+                        }
                     }
-                    else
+                    if (check == 1)
                     {
-                        formatSpecifiers += setperserData[i + 1].substr(j, pos - j + 1);
+                        {
+                            formatSpecifiers += setperserData[i + 1].substr(j, pos - j + 1);
+                        }
+                        
                     }
                     j = pos;
                 }
@@ -82,7 +134,7 @@ void printParser()
                 }
             }
 
-            string_const = setperserData[i].substr(0, 7) + '"' + formatSpecifiers + '"' + ((varNames == "") ? "" : ",") + varNames + ")" + setperserData[i + 2] + "\n";
+            string_const = setperserData[i].substr(0, 7) + '"' + formatSpecifiers + '"' + ((varNames == "") ? "" : ",") + varNames + ")" + setperserData[i + 2];
             setperserData[i] = string_const;
             setperserData.erase(std::next(setperserData.begin(), i + 1), std::next(setperserData.begin(), i + 3));
         }

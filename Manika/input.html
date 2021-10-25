@@ -1,19 +1,15 @@
 <htpl>
        <main>
-        <fl a=500/>
-        <in b=50/>
-        <% a=a+2 %>
-        <% b=(b%2)+b %>
-        <in i=0 />
-        <log>The value is ${a} \n</log>
-        <log>The value is ${b} \n</log>
-        <# f(i=0,i<b,i++)
-            <log>${i}\n</log>
+       <in b,i=0 />
+       <log>Enter an integer </log>
+       <take b //>
+       <# f(i=1,i<=b,i++)
+       <log>${i*2}\n</log>
         #>
-        <log>
-            
-            tuyhi
-            tid</log>
-            <log>iucggc</log>
-     </main>
+       <log>
+
+              tuyhi
+       tid</log>
+       <log>iucggc</log>
+       </main>
 </htpl>
