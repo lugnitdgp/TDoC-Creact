@@ -1,12 +1,15 @@
 #include<stdio.h>
 
+struct student {
+int x;
+float y;
+};
 void main(){
 
-int b,i=2;
-printf("Enter an integer ");
-scanf("%d",&b);
-do{
-printf("%d\n",(i));
-i=i+1;
-}while(i<=b);
+struct student a={1,2.5};
+struct student b=a;
+printf("%d\n",(a.x));
+printf("%f\n",(a.y));
+printf("%d\n",(b.x));
+printf("%f\n",(b.y));
 }

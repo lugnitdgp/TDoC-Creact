@@ -13,6 +13,9 @@ std::vector<std::string> headers;
 std::vector<std::string> var_keeper;
 std::unordered_map<std::string, std::string> vectorCounter;
 std::unordered_map<std::string, std::string> vectorDatatype;
+std::vector<std::string> struct_keeper;
+std::unordered_map<std::string, std::string> structCounter;
+std::unordered_map<std::string, std::string> structVarCounter;
 
 void refDataset()
 {
@@ -165,7 +168,7 @@ void conditionBuilder(std::string parse)
 std::string temp = "";
 void iteratorBuilders(std::string parse)
 {
-    
+
     if (parse[parse.length() - 1] != '>')
     {
         parse = parse.substr(2, parse.length() - 2);
@@ -289,6 +292,56 @@ std::vector<std::string> fxEval(std::string st)
         }
     }
     return store;
+}
+
+void structBuilder(std::string getData)
+{
+    getData = spaceDebug(getData.substr(2, getData.length() - 2));
+    if (getData.substr(0, 5) == "class")
+    {
+        std::string class_name = getData.substr(6);
+        class_name = class_name.substr(0, class_name.length() - 1);
+        struct_keeper.push_back(class_name);
+        setParserData.push_back("struct " + class_name + " {");
+    }
+    else
+    {
+        getData = spaceDebug(getData.substr(0, getData.length() - 2)) + " ";
+        std::string temp = "";
+        std::vector<std::string> temp_holder;
+        for (int i = 0; i < getData.length(); i++)
+        {
+            if (getData[i] == ' ')
+            {
+                temp_holder.push_back(temp);
+                temp = "";
+            }
+            else if (getData[i] == '(')
+            {
+                getData[i] = '{';
+            }
+            else if (getData[i] == ')')
+            {
+                getData[i] = '}';
+            }
+            else
+            {
+                temp += getData[i];
+            }
+        }
+        getData = spaceDebug(getData);
+        temp = "";
+        if (struct_keeper[0] == temp_holder[0])
+        {
+            setParserData.push_back("struct " + getData + ";");
+            structCounter.insert({temp_holder[0], getData.substr(getData.find(' ') + 1, getData.find('=') - getData.find(' ') - 1)});
+            for (auto it : structVarCounter)
+            {
+                variableMapper.insert({getData.substr(getData.find(' ') + 1, getData.find('=') - getData.find(' ') - 1) + "." + it.first, dataMapper.find((dataMapper.find(it.second)->second))->second});
+            }
+        }
+        temp_holder.clear();
+    }
 }
 
 void printParser()
@@ -538,7 +591,12 @@ void Parser(std::string getData)
     }
     else
     {
-        if (setParserData[setParserData.size() - 1] == "printf()")
+        if (dataMapper.find(getData.substr(0, 2)) != dataMapper.end())
+        {
+            structVarCounter.insert({getData.substr(3, getData.length() - 3), getData.substr(0, 2)});
+            setParserData.push_back(dataMapper.find(getData.substr(0, 2))->second + " " + getData.substr(3, getData.length() - 3) + ";");
+        }
+        else if (setParserData[setParserData.size() - 1] == "printf()")
         {
             setParserData.push_back(getData);
         }
@@ -568,6 +626,14 @@ int main(int argc, char const *argv[])
         else if (getSyntax.substr(0, 2) == "<<")
         {
             memoryPlay(getSyntax);
+        }
+        else if (getSyntax.substr(0, 2) == "<!")
+        {
+            structBuilder(getSyntax);
+        }
+        else if (getSyntax.substr(0, 2) == "!>")
+        {
+            setParserData.push_back("};");
         }
         else
         {
