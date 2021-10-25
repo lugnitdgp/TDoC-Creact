@@ -1,14 +1,14 @@
 <htpl>
     <!-- Bucket sort code -->
     <main>
-        <<stream::(fl) v>>
-        <<stream::(fl) vector2>>
+        <<stream::(in) v>>
+        <<stream::(in) vector2>>
         <in x,i,j, a,b/>
-        <fl tmp />
+        <in tmp />
         <log>Enter the number of elements to enter: \n</log>
         <take x//>
         <# f(i=0,i<x, i++)
-            <fl y/>
+            <in y/>
             <take y//>
             <<v.plus(y)>>
         #>

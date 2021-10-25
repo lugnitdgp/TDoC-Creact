@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #define predefsz 2
 #define predefsz1 4
-int c121= 0;
-int c236= 0;
+int c181= 0;
+int c476= 0;
 int* checkout(int counter, int *pre, int *ptr){
     if(counter==*(pre)){
         ptr =  (int*)realloc(ptr, sizeof(int)*(*pre)*2);
@@ -21,37 +21,24 @@ void show(int *ptr, int counter){
     }
     printf("\n");
 }
-
-float* checkout1(int counter, int *pre, float *ptr){
-    if(counter==*(pre)){
-        ptr =  (float*)realloc(ptr, sizeof(float)*(*pre)*2);
-        (*pre) = (*pre)*2;
-    }
-    return ptr;
-}
-void show1(float *ptr, int counter){
-    for(int i=0; i<=counter; i++){
-        printf("%f\t", *(ptr+i));
-    }
-    printf("\n");
-}
 void main(){
 
-float v204 = predefsz1;
-float *v = (float*)malloc(sizeof(float)*v204);
-float vector2857 = predefsz1;
-float *vector2 = (float*)malloc(sizeof(float)*vector2857);
+int v337 = predefsz;
+int *v = (int*)malloc(sizeof(int)*v337);
+int vector2175 = predefsz;
+int *vector2 = (int*)malloc(sizeof(int)*vector2175);
 int x,i,j, a,b;
-float tmp;
+int tmp;
 printf("Enter the number of elements to enter: \n");
 scanf("%d",&x);
 for(i=0;i<x; i++){
-float y;
-scanf("%f",&y);
-*(v+c121++)=y;
+int y;
+scanf("%d",&y);
+v=checkout(c181,&v337,v);*(v+c181++)=y;
 }
-c121--;
+c181--;
 printf("The original Array is: \n");
+show(v,c181);
 for(i=0; i<x-1; i++){
 for(j=0;j<x-i-1;j++){
 a = *(v+j);
@@ -64,4 +51,5 @@ tmp = *(v+j);
 }
 }
 printf("The sorted Array is \n");
+show(v,c181);
 }

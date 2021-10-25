@@ -443,24 +443,23 @@ void memoryManip(std::string getData)
 {
     getData = getData.substr(2, getData.length() - 4);
     getData = spaceDebug(getData);
-    std::string _datatype = getData.substr(getData.find('(') + 1, getData.find(')') - getData.find('(') - 1);
-    // std::cout<<_datatype<<" ";
     if (getData.substr(0, 6) == "stream")
     {
         headers.push_back("#include <stdlib.h>");
         headers.push_back("#define predefsz 2");
         headers.push_back("#define predefsz1 4");
+        std::string _datatype = getData.substr(getData.find('(') + 1, getData.find(')') - getData.find('(') - 1);
 
         if (_datatype == "in" || _datatype=="fl")
         {
-            
+
             std::string varRect = getData.substr(getData.find(')') + 2, getData.length() - getData.find(')') + 1);
             std::string sizeDef = varRect + std::to_string(rand()).substr(0, 3);
             std::string ins_var = "c" + std::to_string(rand()).substr(0, 3);
 
             vectorCounter.insert({varRect, ins_var});
             vectorCounter.insert({ins_var, sizeDef});
-           
+
             if(_datatype == "in"){
                 functionHeader.push_back("int " + ins_var + "= 0;");
                 setParserData.push_back("int " + sizeDef + " = " + "predefsz;");
@@ -468,13 +467,12 @@ void memoryManip(std::string getData)
                 setParserData.push_back(instance1);
             } 
             else if(_datatype == "fl"){
-                functionHeader.push_back("int " + ins_var + "= 0;");
+                functionHeader.push_back("float " + ins_var + "= 0f;");
                 setParserData.push_back("float " + sizeDef + " = " + "predefsz1;");
                 std::string instance1 = dataMapper.find(_datatype)->second + " " + '*' + varRect + " = (float*)malloc(sizeof(float)*" + sizeDef + ");";
                 setParserData.push_back(instance1);
             }
-            // std::cout<<_datatype<<" ";
-            
+
             if (var_keeper.empty())
             {
                 std::string ins_var1;
@@ -487,14 +485,10 @@ void memoryManip(std::string getData)
         }
     }
     else
-    {  
-        std::string _datatype1 = getData.substr(getData.find('(') + 1, getData.find(')') - getData.find('(') - 1);
-        // std::cout<<getData;
+    {
         if (getData.substr(getData.find('.') + 1, 4) == "plus")
-        {   
-            std::string ins_var;
-            ins_var = getData.substr(0, getData.find('.')) + "=" + "checkout(" + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ",&" + vectorCounter.find(vectorCounter.find(getData.substr(0, getData.find('.')))->second)->second + ',' + getData.substr(0, getData.find('.')) + ");";
-            // ins_var = getData.substr(0, getData.find('.')) + "=" + "checkout1(" + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ",&" + vectorCounter.find(vectorCounter.find(getData.substr(0, getData.find('.')))->second)->second + ',' + getData.substr(0, getData.find('.')) + ");";  
+        {
+            std::string ins_var = getData.substr(0, getData.find('.')) + "=" + "checkout(" + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ",&" + vectorCounter.find(vectorCounter.find(getData.substr(0, getData.find('.')))->second)->second + ',' + getData.substr(0, getData.find('.')) + ");";
             std::string ins_var3 = "*(" + getData.substr(0, getData.find('.')) + "+" + vectorCounter.find(getData.substr(0, getData.find('.')))->second + "++)=" + getData.substr(getData.find('(') + 1, getData.length() - getData.find('(') - 2) + ";";
             setParserData.push_back(ins_var + ins_var3);
         }
@@ -504,10 +498,7 @@ void memoryManip(std::string getData)
         }
         else if (getData.substr(getData.find('.') + 1, 4) == "show")
         {
-            // if(_datatype=="in")
             setParserData.push_back("show(" + getData.substr(0, getData.find('.')) + "," + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ");");
-            // else if(_datatype=="fl")  
-                // setParserData.push_back("show1(" + getData.substr(0, getData.find('.')) + "," + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ");");
         }
     }
 }
