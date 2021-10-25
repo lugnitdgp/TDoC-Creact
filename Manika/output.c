@@ -2,21 +2,28 @@
 
 void main(){
 
-int var1=500;
-char hf='p',k1='r';
-float a=500.8475;
-printf("The values are: %d, %d, %d, %f ",var1,hf,k1,a);
+int var1,var2,var3;
+printf("Enter 3 values ");
 
-int m=21,b;
-char c='*',d='&';
-float e;
-printf("Enter an integer and a float value respectively ");
+scanf("%d %d %d",&var1,&var2,&var3);
+if(var1>var2){
+if(var1>var3){
+printf("Maximum is %d",var1);
 
-scanf("%d %f",&b,&e);
-printf("The values are %f, %d, %d, %d, %f \n",a,b,c,d,e);
+}
+else{
+printf("Maximum is %d",var3);
 
-printf("tuyhi ti");
+}
+}
+else{
+if(var2>var3){
+printf("Maximum is %d",var2);
 
-printf("iucggc");
+}
+else{
+printf("Maximum is %d",var3);
 
+}
+}
 }

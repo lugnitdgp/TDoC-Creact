@@ -88,7 +88,7 @@ void printParser()
         }
         else if (setperserData[i] == "scanf()")
         {
-           // std::unordered_map<std::string, std::string>::iterator itr;
+            // std::unordered_map<std::string, std::string>::iterator itr;
             //string_const = setperserData[i].substr(0, 6) + '"' + varibaleMapper.find(setperserData[i + 1])->second + '"' + ",&" + setperserData[i + 1] + ')' + ';';
             std::string formatSpecifiers = "", varNames = "", varName = "";
             for (int j = 0; j < setperserData[i + 1].size(); j++)
@@ -166,6 +166,47 @@ void IOparser(std::string getData)
     //    std::cout<<it.first<<" "<<it.second<<"\n";
     //}
 }
+void conditionBuilder(std::string parse)
+{
+    int cnt = 0, cnt2 = 0;
+    for (int i = 0; i < parse.length(); i++)
+    {
+        if (parse[i] == '?')
+        {
+            cnt++;
+        }
+        if (parse[i] == 'i' || parse[i] == 'e')
+        {
+            break;
+        }
+        cnt2++;
+    }
+    if (parse[parse.length() - 1] != '>')
+    {
+        parse = parse.substr(cnt2, parse.length() - cnt2);
+        if (parse.substr(0, 2) == "if")
+        {
+            parse += "{";
+            setperserData.push_back(parse);
+        }
+        else if (parse.substr(0, 4) == "elif")
+        {
+            std::string sf = "else if";
+            parse = sf + parse.substr(4, parse.length() - 4) + "{";
+            setperserData.push_back(parse);
+        }
+        else if (parse.substr(0, 4) == "else")
+        {
+            parse += "{";
+            setperserData.push_back(parse);
+        }
+    }
+    else
+    {
+        std::string stf = "}";
+        setperserData.push_back(stf);
+    }
+}
 
 void Parser(std::string getData)
 {
@@ -214,7 +255,7 @@ void Parser(std::string getData)
                 getData = getData.substr(1, getData.length() - 3);
                 getData = spaceDebug(getData);
                 setperserData.push_back(datamapper.find(getData.substr(0, 2))->second + getData.substr(2, getData.length() - 2) + ";");
-                IOparser(getData +',');
+                IOparser(getData + ',');
             }
         }
 
@@ -295,7 +336,14 @@ int main(int argc, const char *argv[])
         getSyntax = spaceDebug(getSyntax);
         if (getSyntax.length() != 0)
         {
-            Parser(getSyntax);
+            if (getSyntax.substr(0, 2) == "<?" || getSyntax.substr(getSyntax.length() - 2, 2) == "?>")
+            {
+                conditionBuilder(getSyntax);
+            }
+            else
+            {
+                Parser(getSyntax);
+            }
         }
         else
         {
