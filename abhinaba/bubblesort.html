@@ -1,19 +1,22 @@
 <htpl>
     <!-- Bucket sort code -->
     <main>
-        <<stream::(in) v>>
-        <<stream::(in) vector2>>
-        <in x,i,j,tmp,a,b/>
+        <<stream::(fl) v>>
+        <<stream::(fl) vector2>>
+        <in x,i,j, a,b/>
+        <fl tmp />
         <log>Enter the number of elements to enter: \n</log>
         <take x//>
         <# f(i=0,i<x, i++)
-            <in y/>
+            <fl y/>
             <take y//>
             <<v.plus(y)>>
         #>
         <<v.minus()>>
         <log>The original Array is: \n</log>
         <<v.show()>>
+            <!-- Bubble 
+            sort logic and code-->
         <# f(i=0, i<x-1, i++)
             <# f(j=0,j<x-i-1,j++)
                 <% a = v[j] %>

@@ -49,7 +49,7 @@ void writeCode(){
         // std::cout<<setParserData[i]<<" ";
         writeFile<<setParserData[i]<<"\n";
         if(i==0){
-            for(int k=0; k<functionHeader.size(); k++){
+            for(int k=0; k<headers.size(); k++){
                 writeFile << headers[k] <<"\n"; 
             }
             for(int k=0; k<functionHeader.size(); k++){
@@ -443,12 +443,13 @@ void memoryManip(std::string getData)
 {
     getData = getData.substr(2, getData.length() - 4);
     getData = spaceDebug(getData);
+    std::string _datatype = getData.substr(getData.find('(') + 1, getData.find(')') - getData.find('(') - 1);
+    // std::cout<<_datatype<<" ";
     if (getData.substr(0, 6) == "stream")
     {
         headers.push_back("#include <stdlib.h>");
         headers.push_back("#define predefsz 2");
         headers.push_back("#define predefsz1 4");
-        std::string _datatype = getData.substr(getData.find('(') + 1, getData.find(')') - getData.find('(') - 1);
 
         if (_datatype == "in" || _datatype=="fl")
         {
@@ -467,11 +468,12 @@ void memoryManip(std::string getData)
                 setParserData.push_back(instance1);
             } 
             else if(_datatype == "fl"){
-                functionHeader.push_back("float " + ins_var + "= 0f;");
+                functionHeader.push_back("int " + ins_var + "= 0;");
                 setParserData.push_back("float " + sizeDef + " = " + "predefsz1;");
                 std::string instance1 = dataMapper.find(_datatype)->second + " " + '*' + varRect + " = (float*)malloc(sizeof(float)*" + sizeDef + ");";
                 setParserData.push_back(instance1);
             }
+            // std::cout<<_datatype<<" ";
             
             if (var_keeper.empty())
             {
@@ -485,10 +487,14 @@ void memoryManip(std::string getData)
         }
     }
     else
-    {
+    {  
+        std::string _datatype1 = getData.substr(getData.find('(') + 1, getData.find(')') - getData.find('(') - 1);
+        // std::cout<<getData;
         if (getData.substr(getData.find('.') + 1, 4) == "plus")
-        {
-            std::string ins_var = getData.substr(0, getData.find('.')) + "=" + "checkout(" + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ",&" + vectorCounter.find(vectorCounter.find(getData.substr(0, getData.find('.')))->second)->second + ',' + getData.substr(0, getData.find('.')) + ");";
+        {   
+            std::string ins_var;
+            ins_var = getData.substr(0, getData.find('.')) + "=" + "checkout(" + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ",&" + vectorCounter.find(vectorCounter.find(getData.substr(0, getData.find('.')))->second)->second + ',' + getData.substr(0, getData.find('.')) + ");";
+            // ins_var = getData.substr(0, getData.find('.')) + "=" + "checkout1(" + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ",&" + vectorCounter.find(vectorCounter.find(getData.substr(0, getData.find('.')))->second)->second + ',' + getData.substr(0, getData.find('.')) + ");";  
             std::string ins_var3 = "*(" + getData.substr(0, getData.find('.')) + "+" + vectorCounter.find(getData.substr(0, getData.find('.')))->second + "++)=" + getData.substr(getData.find('(') + 1, getData.length() - getData.find('(') - 2) + ";";
             setParserData.push_back(ins_var + ins_var3);
         }
@@ -498,7 +504,10 @@ void memoryManip(std::string getData)
         }
         else if (getData.substr(getData.find('.') + 1, 4) == "show")
         {
+            // if(_datatype=="in")
             setParserData.push_back("show(" + getData.substr(0, getData.find('.')) + "," + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ");");
+            // else if(_datatype=="fl")  
+                // setParserData.push_back("show1(" + getData.substr(0, getData.find('.')) + "," + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ");");
         }
     }
 }
@@ -521,6 +530,9 @@ int main(int argc, char const *argv[])
         }
         else if(getSyntax.substr(0, 2)=="<<"){
             memoryManip(getSyntax);
+        }
+        else if (getSyntax.substr(0, 4) == "<!--" || getSyntax.substr(getSyntax.length() - 3, 3) == "-->"){
+            continue;
         }
         else
         {

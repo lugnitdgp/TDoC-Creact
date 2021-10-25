@@ -11,3 +11,17 @@ void show(int *ptr, int counter){
     }
     printf("\n");
 }
+
+float* checkout1(int counter, int *pre, float *ptr){
+    if(counter==*(pre)){
+        ptr =  (float*)realloc(ptr, sizeof(float)*(*pre)*2);
+        (*pre) = (*pre)*2;
+    }
+    return ptr;
+}
+void show1(float *ptr, int counter){
+    for(int i=0; i<=counter; i++){
+        printf("%f\t", *(ptr+i));
+    }
+    printf("\n");
+}
