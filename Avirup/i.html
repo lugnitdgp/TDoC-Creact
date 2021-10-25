@@ -1,0 +1,25 @@
+<htpl>
+    <main>
+        <<stream::(in) at>>
+        <<stream::(in) ptr>>
+        <<ptr.plus(1)>>
+        <<ptr.plus(2)>>
+        <<ptr.plus(3)>>
+        <<ptr.plus(4)>>
+        <<ptr.show()>>//Displaying ptr after adding 4 values
+        <% ptr[2]=8 %>
+        <<ptr.show()>>
+        <in a,b,c/>
+        <log>No of numbers you want to take : 
+        </log>
+        <take a/>//Receiving the number of values to take
+        <# f(b=0;b < a;b++)
+        <take c/>//Receiving each value
+        <<at.plus(c)>>
+        #>
+        <<at.show()>>
+        <log>Deleting one number</log>
+        <<at.minus()>>
+        <<at.show()>>
+    </main>
+</htpl>
