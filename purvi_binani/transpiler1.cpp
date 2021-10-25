@@ -12,6 +12,7 @@ std::vector<std::string> functionHeader;
 std::vector<std::string> headers;
 std::vector<std::string> var_keeper;
 std::unordered_map<std::string, std::string> vectorCounter;
+std::unordered_map<std::string, std::string> vectorDatatype;
 
 void refDataset()
 {
@@ -200,8 +201,9 @@ void memoryPlay(std::string getData)
         headers.push_back("#include <stdlib.h>");
         headers.push_back("#define predefsz 2");
         std::string _datatype = getData.substr(getData.find('(') + 1, getData.find(')') - getData.find('(') - 1);
+        vectorDatatype.insert({getData.substr(getData.find(')') + 2, getData.length() - getData.find(')') + 1), _datatype});
 
-        if (_datatype == "in")
+        if (_datatype == "in" || _datatype == "fl")
         {
             srand(time(0));
             std::string varRect = getData.substr(getData.find(')') + 2, getData.length() - getData.find(')') + 1);
@@ -212,7 +214,7 @@ void memoryPlay(std::string getData)
             vectorCounter.insert({ins_var, sizeDef});
             functionHeader.push_back("int " + ins_var + "= 0;");
             setParserData.push_back("int " + sizeDef + " = " + "predefsz;");
-            std::string instance1 = dataMapper.find(_datatype)->second + " " + '*' + varRect + " = (int*)malloc(sizeof(int)*" + sizeDef + ");";
+            std::string instance1 = dataMapper.find(_datatype)->second + " " + '*' + varRect + " = (" + dataMapper.find(_datatype)->second + "*)malloc(sizeof(" + dataMapper.find(_datatype)->second + ")*" + sizeDef + ");";
             setParserData.push_back(instance1);
             if (var_keeper.empty())
             {
@@ -229,7 +231,8 @@ void memoryPlay(std::string getData)
     {
         if (getData.substr(getData.find('.') + 1, 4) == "plus")
         {
-            std::string ins_var = getData.substr(0, getData.find('.')) + "=" + "checkout(" + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ",&" + vectorCounter.find(vectorCounter.find(getData.substr(0, getData.find('.')))->second)->second + ',' + getData.substr(0, getData.find('.')) + ");";
+            std::string extra = (vectorDatatype.find(getData.substr(0, getData.find('.')))->second == "in") ? "1" : "2";
+            std::string ins_var = getData.substr(0, getData.find('.')) + "=" + "checkout"+extra+"(" + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ",&" + vectorCounter.find(vectorCounter.find(getData.substr(0, getData.find('.')))->second)->second + ',' + getData.substr(0, getData.find('.'))+");";
             std::string ins_var3 = "*(" + getData.substr(0, getData.find('.')) + "+" + vectorCounter.find(getData.substr(0, getData.find('.')))->second + "++)=" + getData.substr(getData.find('(') + 1, getData.length() - getData.find('(') - 2) + ";";
             setParserData.push_back(ins_var + ins_var3);
         }
@@ -239,7 +242,8 @@ void memoryPlay(std::string getData)
         }
         else if (getData.substr(getData.find('.') + 1, 4) == "show")
         {
-            setParserData.push_back("show(" + getData.substr(0, getData.find('.')) + "," + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ");");
+            std::string extra = (vectorDatatype.find(getData.substr(0, getData.find('.')))->second == "in") ? "1" : "2";
+            setParserData.push_back("show"+extra+"(" + getData.substr(0, getData.find('.')) + "," + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ");");
         }
     }
 }

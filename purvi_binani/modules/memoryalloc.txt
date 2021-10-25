@@ -1,13 +1,29 @@
-int *checkout(int counter,int *pre,int *ptr){
+int *checkout1(int counter,int *pre,int *ptr){
     if(counter==(*pre)){
         ptr=(int*)realloc(ptr,sizeof(int)*(*pre)*2);
         (*pre)=(*pre)*2;
     }
     return ptr;
 }
-void show (int *ptr,int counter){
+
+float *checkout2(int counter,int *pre,float *ptr){
+    if(counter==(*pre)){
+        ptr=(float*)realloc(ptr,sizeof(float)*(*pre)*2);
+        (*pre)=(*pre)*2;
+    }
+    return ptr;
+}
+
+void show1 (int *ptr,int counter){
     for(int i=0;i<counter;i++){
         printf("%d\t",*(ptr+i));
+    }
+    printf("\n");
+}
+
+void show2 (float *ptr,int counter){
+    for(int i=0;i<counter;i++){
+        printf("%f\t",*(ptr+i));
     }
     printf("\n");
 }
