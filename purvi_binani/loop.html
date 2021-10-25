@@ -1,10 +1,11 @@
 <htpl>
     <main>
-        <in b,i=0/>
+        <in b,i=2 />
         <log>Enter an integer </log>
         <take b//>
-        <# f(i=1,i<=b,i++)
-            <log>${i*2}\n</log>
+        <# dw(i<=b)
+            <log>${i}\n</log>
+            <% i=i+1 %>
         #>
     </main>
 </htpl>

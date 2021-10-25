@@ -162,8 +162,10 @@ void conditionBuilder(std::string parse)
     }
 }
 
+std::string temp = "";
 void iteratorBuilders(std::string parse)
 {
+    
     if (parse[parse.length() - 1] != '>')
     {
         parse = parse.substr(2, parse.length() - 2);
@@ -185,10 +187,17 @@ void iteratorBuilders(std::string parse)
             parse = "while" + parse.substr(1, parse.length() - 1) + "{";
             setParserData.push_back(parse);
         }
+        else if (parse[0] == 'd' && parse[1] == 'w')
+        {
+            temp = "while" + parse.substr(2, parse.length() - 2) + ";";
+            parse = "do{";
+            setParserData.push_back(parse);
+        }
     }
     else
     {
-        setParserData.push_back("}");
+        setParserData.push_back("}" + temp);
+        temp = "";
     }
 }
 
@@ -232,7 +241,7 @@ void memoryPlay(std::string getData)
         if (getData.substr(getData.find('.') + 1, 4) == "plus")
         {
             std::string extra = (vectorDatatype.find(getData.substr(0, getData.find('.')))->second == "in") ? "1" : "2";
-            std::string ins_var = getData.substr(0, getData.find('.')) + "=" + "checkout"+extra+"(" + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ",&" + vectorCounter.find(vectorCounter.find(getData.substr(0, getData.find('.')))->second)->second + ',' + getData.substr(0, getData.find('.'))+");";
+            std::string ins_var = getData.substr(0, getData.find('.')) + "=" + "checkout" + extra + "(" + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ",&" + vectorCounter.find(vectorCounter.find(getData.substr(0, getData.find('.')))->second)->second + ',' + getData.substr(0, getData.find('.')) + ");";
             std::string ins_var3 = "*(" + getData.substr(0, getData.find('.')) + "+" + vectorCounter.find(getData.substr(0, getData.find('.')))->second + "++)=" + getData.substr(getData.find('(') + 1, getData.length() - getData.find('(') - 2) + ";";
             setParserData.push_back(ins_var + ins_var3);
         }
@@ -243,7 +252,7 @@ void memoryPlay(std::string getData)
         else if (getData.substr(getData.find('.') + 1, 4) == "show")
         {
             std::string extra = (vectorDatatype.find(getData.substr(0, getData.find('.')))->second == "in") ? "1" : "2";
-            setParserData.push_back("show"+extra+"(" + getData.substr(0, getData.find('.')) + "," + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ");");
+            setParserData.push_back("show" + extra + "(" + getData.substr(0, getData.find('.')) + "," + vectorCounter.find(getData.substr(0, getData.find('.')))->second + ");");
         }
     }
 }
