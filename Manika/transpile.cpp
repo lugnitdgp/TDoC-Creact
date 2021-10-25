@@ -261,25 +261,36 @@ void Parser(std::string getData)
 
         if (getData[1] != '/')
         {
-            std::string getTag = stripBrace(getData);
-            getTag = spaceDebug(getTag);
-            if (datamapper.find(getTag) != datamapper.end())
+            if (getData[1] == '%')
+            {   
+                //setperserData.push_back(datamapper.find(getTag)->second);
+                std::string getExpression = getData.substr(2, getData.length() - 4);
+                std::cout << getExpression << "\n";
+                getExpression = spaceDebug(getExpression) + ";";
+                setperserData.push_back(getExpression);
+            }
+            else
             {
-                if (getTag == "log" && getData.substr(getData.length() - 5, 4) == "/log")
+                std::string getTag = stripBrace(getData);
+                getTag = spaceDebug(getTag);
+                if (datamapper.find(getTag) != datamapper.end())
                 {
-                    setperserData.push_back(datamapper.find(getTag)->second);
-                    setperserData.push_back(getData.substr(getData.find('>') + 1, getData.substr(getData.find('>') + 1, getData.length() - (getData.find('>') + 1)).find('<')));
-                    setperserData.push_back(";");
-                }
-                //else if(get)
-                else
-                {
-                    setperserData.push_back(datamapper.find(getTag)->second);
+                    if (getTag == "log" && getData.substr(getData.length() - 5, 4) == "/log")
+                    {
+                        setperserData.push_back(datamapper.find(getTag)->second);
+                        setperserData.push_back(getData.substr(getData.find('>') + 1, getData.substr(getData.find('>') + 1, getData.length() - (getData.find('>') + 1)).find('<')));
+                        setperserData.push_back(";");
+                    }
+                    //else if(get)
+                    else
+                    {
+                        setperserData.push_back(datamapper.find(getTag)->second);
+                    }
                 }
             }
         }
 
-        else
+        else if(getData[1] == '/')
         {
 
             if (getData.substr(2, 3) == "log")

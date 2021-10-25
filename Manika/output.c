@@ -2,28 +2,16 @@
 
 void main(){
 
-int var1,var2,var3;
-printf("Enter 3 values ");
+float a=500;
+int b=50;
+a=a+2;
+b=(b%2)+b;
+printf("The value is %f \n",a);
 
-scanf("%d %d %d",&var1,&var2,&var3);
-if(var1>var2){
-if(var1>var3){
-printf("Maximum is %d",var1);
+printf("The value is %d \n",b);
 
-}
-else{
-printf("Maximum is %d",var3);
+printf("tuyhi ti");
 
-}
-}
-else{
-if(var2>var3){
-printf("Maximum is %d",var2);
+printf("iucggc");
 
-}
-else{
-printf("Maximum is %d",var3);
-
-}
-}
 }

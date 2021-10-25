@@ -1,15 +1,11 @@
 <htpl>
        <main>
-        <in var1=500/>
-        <ch hf='p',k1='r'/>
-        <fl a=500.8475/>
-        <log>The values are: ${var1}, ${hf}, ${k1}, ${a} </log>
-        <in m=21,b/>
-        <ch c='*',d='&'/>
-        <fl e/>
-        <log>Enter an integer and a float value respectively </log>
-        <take b,e//>
-        <log>The values are ${a}, ${b}, ${c}, ${d}, ${e} \n</log>
+        <fl a=500/>
+        <in b=50/>
+        <% a=a+2 %>
+        <% b=(b%2)+b %>
+        <log>The value is ${a} \n</log>
+        <log>The value is ${b} \n</log>
         <log>
             
             tuyhi
