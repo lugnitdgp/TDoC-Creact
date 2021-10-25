@@ -6,6 +6,7 @@
 std::unordered_map<std::string, std::string> varibaleMapper;
 std::unordered_map<std::string, std::string> datamapper;
 std::vector<std::string> setperserData;
+std::vector<std::string> functionHeader;
 void refDataset()
 {
     datamapper.insert({"htpl", "#include<stdio.h>\n"});
@@ -27,6 +28,13 @@ void writeCode()
     for (int i = 0; i < setperserData.size() - 1; i++)
     {
         writeFile << setperserData[i] << "\n";
+        if (i == 0)
+        {
+            for (int k = 0; k < functionHeader.size(); k++)
+            {
+                writeFile << functionHeader[k] << "\n";
+            }
+        }
     }
 }
 std::string spaceDebug(std::string getData)
@@ -80,12 +88,12 @@ std::vector<std::string> fxEval(std::string st)
             tmp = "";
         }
     }
-    for(auto it:varibaleMapper){
+    /*for(auto it:varibaleMapper){
         std::cout<<it.first<<" "<<it.second<<"\n";
     }
     for(auto it:store){
         std::cout<<it<<"\n";
-    }
+    }*/
     return store;
 }
 
@@ -107,14 +115,14 @@ void printParser()
                     varName = setperserData[i + 1].substr(j + 2, pos - (j + 2));
                     exval = fxEval(varName);
                     bool check = 1;
-                    for(auto it:exval) std::cout<<it<<"\n";
+                    //for(auto it:exval) std::cout<<it<<"\n";
                     for (int k = 0; k < exval.size(); k++)
                     {
                         if (varibaleMapper.find(exval[k]) != varibaleMapper.end())
                         {
                             formatSpecifiers += varibaleMapper.find(exval[k])->second;
                             varNames += ((varNames == "") ? "" : ",") + varName;
-                            std::cout<<formatSpecifiers<<"\n";
+                            //std::cout<<formatSpecifiers<<"\n";
                             check = 0;
                             break;
                         }
@@ -291,16 +299,47 @@ void iteratorBuilders(std::string parse)
 
 void Parser(std::string getData)
 {
-    getData = spaceDebug(getData);
     if (getData[0] == '<')
     {
-        if (getData[getData.length() - 1] == '>' && getData[getData.length() - 2] == '/')
+        std::string getTag = stripBrace(getData);
+        std::string helper_string = getData.substr(getData.find('>') + 1, getData.length() - (getData.find('>') + 1));
+        if (helper_string.find('<') != std::string::npos && helper_string[helper_string.find('<') + 1] == '/')
         {
-            /*getData = getData.substr(1, getData.length() - 3);
-            getData = spaceDebug(getData);
-            setperserData.push_back(datamapper.find(getData.substr(0, getData.find(' ')))->second + getData.substr(getData.find(' '), getData.length() - getData.find(' ')) + ";");
-            IOparser(getData + ",");*/
-            if (getData[getData.length() - 3] == '/')
+
+            if (datamapper.find(getTag) != datamapper.end())
+            {
+                setperserData.push_back(datamapper.find(getTag)->second);
+            }
+            std::string toRemove = helper_string.substr(helper_string.find('/') - 1);
+            helper_string.erase(helper_string.find(toRemove), toRemove.length());
+            setperserData.push_back(helper_string);
+            std::string getEndTag = stripBrace(getData.substr(getData.substr(1).find('<') + 1));
+            if (getEndTag.substr(1, 3) == "log")
+            {
+                setperserData.push_back(datamapper.find("/log")->second);
+            }
+            else
+            {
+                setperserData.push_back(datamapper.find("/")->second);
+            }
+        }
+        else if (getData[getData.length() - 1] == '>' && getData[getData.length() - 2] == '/')
+        {
+            if (getData.find('f') != std::string::npos && getData[getData.find('f') + 1] == 'x')
+            {
+                getData = getData.substr(1, getData.length() - 3);
+                getData = spaceDebug(getData);
+                std::string ins_string = getData.substr(3, getData.length() - 3) + ";";
+                setperserData.push_back(ins_string);
+            }
+            else if (getData.find('t') != std::string::npos && getData.substr(getData.find('t'), 5) == "throw")
+            {
+                getData = getData.substr(1, getData.length() - 3);
+                getData = spaceDebug(getData);
+                std::string ins_string = "return " + getData.substr(6, getData.length() - 6) + ";";
+                setperserData.push_back(ins_string);
+            }
+            else if (getData[getData.length() - 3] == '/')
             {
                 getData = getData.substr(1, getData.length() - 4);
                 getData = spaceDebug(getData) + " ";
@@ -323,7 +362,6 @@ void Parser(std::string getData)
                 {
                     std::string tmpStr = "";
                     setperserData.push_back(datamapper.find(tmp[0])->second);
-                    //setParserData.push_back(tmp[1]);
                     for (int it = 1; it < tmp.size(); it++)
                     {
                         tmpStr += tmp[it] + " ";
@@ -339,82 +377,90 @@ void Parser(std::string getData)
                 IOparser(getData + ',');
             }
         }
-
-        if (getData[1] != '/')
+        else if (getData[1] != '/')
         {
-            if (getData[1] == '%')
+            if (getData.find('f') != std::string::npos && getData[getData.find('f') + 1] == 'x')
             {
-                //setperserData.push_back(datamapper.find(getTag)->second);
+                getData = getData.substr(1, getData.length() - 2);
+                getData = spaceDebug(getData);
+                std::string str_builder = "";
+                for (int i = 0; i < getData.length(); i++)
+                {
+                    if (getData[i] == '(' || getData[i] == ')' || getData[i] == ',')
+                    {
+                        str_builder += ' ';
+                        str_builder += getData[i];
+                        str_builder += ' ';
+                    }
+                    else
+                    {
+                        str_builder += getData[i];
+                    }
+                }
+                getData = str_builder;
+                str_builder = "";
+                std::string stf = "";
+                for (int i = 0; i < getData.length(); i++)
+                {
+                    if (getData[i] != ' ')
+                    {
+                        str_builder += getData[i];
+                    }
+                    else
+                    {
+                        if (str_builder == "in" || str_builder == "ch" || str_builder == "fl")
+                        {
+                            stf += datamapper.find(str_builder)->second + ' ';
+                        }
+                        else if (str_builder == "void")
+                        {
+                            stf += str_builder + ' ';
+                        }
+                        else
+                        {
+                            stf += str_builder;
+                        }
+                        str_builder = "";
+                    }
+                }
+                functionHeader.push_back(stf.substr(2, stf.length() - 2) + ";");
+                stf += "{";
+                setperserData.push_back(stf.substr(2, stf.length() - 2));
+            }
+            else if (getData[1] == '%')
+            {
                 std::string getExpression = getData.substr(2, getData.length() - 4);
-                std::cout << getExpression << "\n";
                 getExpression = spaceDebug(getExpression) + ";";
                 setperserData.push_back(getExpression);
             }
             else
             {
                 std::string getTag = stripBrace(getData);
-                getTag = spaceDebug(getTag);
                 if (datamapper.find(getTag) != datamapper.end())
                 {
-                    if (getTag == "log" && getData.substr(getData.length() - 5, 4) == "/log")
-                    {
-                        setperserData.push_back(datamapper.find(getTag)->second);
-                        setperserData.push_back(getData.substr(getData.find('>') + 1, getData.substr(getData.find('>') + 1, getData.length() - (getData.find('>') + 1)).find('<')));
-                        setperserData.push_back(";");
-                    }
-                    //else if(get)
-                    else
-                    {
-                        setperserData.push_back(datamapper.find(getTag)->second);
-                    }
+                    setperserData.push_back(datamapper.find(getTag)->second);
                 }
             }
         }
-
         else if (getData[1] == '/')
         {
-
             if (getData.substr(2, 3) == "log")
-            {
                 setperserData.push_back(datamapper.find("/log")->second);
-            }
             else
-            {
                 setperserData.push_back(datamapper.find("/")->second);
-            }
         }
     }
     else
     {
-        if (getData.substr(getData.length() - 5, 4) == "/log")
+        if (setperserData[setperserData.size() - 1] == "printf()")
         {
-            if (setperserData[setperserData.size() - 1] == "printf()")
-            {
-                setperserData.push_back(getData.substr(0, getData.find('<') - 1));
-                setperserData.push_back(";");
-            }
-            else
-            {
-                setperserData[setperserData.size() - 1] += (" " + getData.substr(0, getData.find('<') - 1));
-                setperserData.push_back(";");
-            }
+            setperserData.push_back(getData);
         }
         else
         {
-            if (setperserData[setperserData.size() - 1] == "printf()")
-            {
-                setperserData.push_back(getData);
-            }
-            else
-            {
-                setperserData[setperserData.size() - 1] += (" " + getData);
-            }
+            setperserData[setperserData.size() - 1] += (" " + getData);
         }
     }
-    /*for (auto it : setperserData)
-    {
-        std::cout << it << "\n";
-    }*/
 }
 
 //int main()
