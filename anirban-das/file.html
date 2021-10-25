@@ -1,0 +1,25 @@
+<htpl>
+    <main>
+        // this is a comment //
+        <in a=0, b=1, c=2 />
+        <log>Do-While Loop: </log>
+        <# dw(a<10)
+            <log>${a}</log>
+            <% a+=2 %>
+        #>
+
+
+        <log>\nFor Loop: </log>
+        <# f(,b<10,b++)
+            <log>${b}</log>
+            <% a+=2 %>
+        #>
+
+        
+        <log>\nWhile Loop: </log>
+        <# w(c<10)
+            <log>${c}</log>
+            <% c+=2 %>
+        #>
+        </main>
+</htpl>
