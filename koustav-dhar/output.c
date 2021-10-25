@@ -1,26 +1,34 @@
 #include <stdio.h>
 
-int fact ( int num ) ;
-void voila ( char x ) ;
+#include "modules/dynamicarray.h"
 void main(){
 
 printf("Hello, World\n");
 printf("- From Koustav\n");
-int num1=10,num2=5,num3;
-printf("\nEnter number for factorial:");
-scanf("%d",&num3);
- voila('y');
- num2=fact(num3);
-printf("${ans}\n");
-}
-int fact ( int num ) {
-int i=1,ans=1;
-while (i<num) {
-ans*=i;
-i++;
-}
-return  ans;
-}
-void voila ( char x ) {
-printf("Hello %c!\n",x);
+int c0 = 0;
+int v0 = SIZE;
+float *v = (float*)malloc(sizeof(float)*v0);
+int x,i,j;
+float tmp;
+printf("Enter the number of elements to enter: ");
+scanf("%d",&x);
+for(i=0;i<x;++i){
+float y;
+scanf("%f",&y);
+v=checkoutfloat(c0,&v0,v);
+*(v+c0++)=y;
+} 
+printf("The original array is: \n");
+showfloat(v,c0);
+for(i=0;i<x-1;++i){
+for(j=0;j<x-i-1;++j){
+if(v[j] > v[j+1]){
+tmp=v[j];
+v[j]=v[j+1];
+v[j+1]=tmp;
+} 
+} 
+} 
+printf("The sorted array is: \n");
+showfloat(v,c0);
 }

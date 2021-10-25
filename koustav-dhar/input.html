@@ -1,19 +1,28 @@
 <htpl>
     <main>
         <log>Hello, World\n</log><log> - From Koustav\n</log>
-        <in num1=10,num2=5,num3/>
-        <log>\nEnter number for factorial:</log>
-        <take num3/>
-        <fx voila('y') />
-        <fx num2=fact(num3) />
-        <log>${ans}\n</log>
+        <<stream::(fl) v>>
+        <in x,i,j/>
+        <fl tmp/>
+        <log>Enter the number of elements to enter: </log>
+        <take x/>
+        <# f(i=0;i<x;++i)
+            <fl y/>
+            <take y/>
+            <<v.plus(y)>>
+        #>
+        <log>The original array is: \n</log>
+        <<v.show()>>
+        <# f(i=0;i<x-1;++i)
+            <# f(j=0;j<x-i-1;++j)
+                <? if(v[j] > v[j+1])
+                    <% tmp=v[j] %>
+                    <% v[j]=v[j+1] %>
+                    <% v[j+1]=tmp %>
+                ?>
+            #>
+        #>
+        <log>The sorted array is: \n</log>
+        <<v.show()>>
     </main>
-    <fx in fact(in num)>
-        <in i=1,ans=1/>
-        <# w (i<num) <% ans*=i %> <% i++ %> #>
-        <throw ans/>
-    </fx>
-    <fx void voila(ch x)>
-        <log>Hello ${x}!\n</log>
-    </fx>
 </htpl>

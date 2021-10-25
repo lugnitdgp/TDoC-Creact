@@ -19,10 +19,13 @@ private:
     std::unordered_map<std::string, std::string> scopeVarMapper;    // temp mapper for current scope
     int functionNo;                                             // to store current function number
     bool insideFunction;                                        // state to determine current parsing is inside a function or not
+    bool dynamicNeeded;                                         // to check if dynamic memory allocation modules needed or not
+    int countVector;                                            // to keep count of vectors declared till now
+    std::unordered_map<std::string, std::string> vectorMapper;  // to map vectors with it's count variables
 public:
     Transpiler() {  // store the keyword mappings
-        insideFunction = false;
-        functionNo = 0;
+        insideFunction = dynamicNeeded = false;
+        functionNo = countVector = 0;
         dataMapper.insert({"htpl", "#include <stdio.h>\n"});
         dataMapper.insert({"main", "void main(){\n"});
         dataMapper.insert({"log", "printf()"});
@@ -118,6 +121,64 @@ public:
         return tokens;
     }
 
+    // function to handle the dynamic memory allocation tasks
+    bool memoryPlay(std::string getData, int lineNo) {
+        getData = removeSpaces(getData);
+        if (getData.substr(0, 6) == "stream") { // vector declaration
+            dynamicNeeded = true;
+            std::string dataType = getData.substr(getData.find('(') + 1, getData.find(')') - getData.find('(') - 1);
+            if (dataMapper.find(dataType) != dataMapper.end()) {
+                std::string varName = removeSpaces(getData.substr(getData.find(')') + 1));
+                std::string sizeName = varName + std::to_string(countVector);
+                std::string countName = "c" + std::to_string(countVector);
+                vectorMapper.insert({varName, countName});
+                vectorMapper.insert({countName, sizeName});
+
+                variableMapper.insert({varName, dataMapper.find(dataType)->second});   // store data types and not format specifiers for vectors, for function choosing
+                variableMapper.insert({countName, dataMapper.find(dataMapper.find("in")->second)->second});
+                variableMapper.insert({sizeName, dataMapper.find(dataMapper.find("in")->second)->second});
+                // for scope handling
+                ++variableFreq[varName]; ++variableFreq[countName]; ++variableFreq[sizeName];
+                if (insideFunction == true) {
+                    functionScopeVars.push_back(varName);
+                    scopeVarMapper.insert({varName, dataMapper.find(dataType)->second});
+                    functionScopeVars.push_back(countName);
+                    scopeVarMapper.insert({countName, dataMapper.find(dataMapper.find("in")->second)->second});
+                    functionScopeVars.push_back(sizeName);
+                    scopeVarMapper.insert({sizeName, dataMapper.find(dataMapper.find("in")->second)->second});
+                }
+
+                setParserData.push_back("int " + countName + " = 0;");
+                setParserData.push_back("int " + sizeName + " = SIZE;");
+                std::string instance = dataMapper.find(dataType)->second + " *" + varName + " = (" + dataMapper.find(dataType)->second + "*)malloc(sizeof(" + dataMapper.find(dataType)->second + ")*" + sizeName + ");";
+                setParserData.push_back(instance);
+
+                ++countVector;
+            } else {    // invalid data type
+                std::cout << "Error at Line " << lineNo << ": Invalid data type \'" << dataType << "\'.\n";
+                return false;
+            }
+
+        } else {
+            if (getData.substr(getData.find('.') + 1, 4) == "plus") {   // for adding elements
+                std::string checkoutCall = getData.substr(0, getData.find('.')) + "=" + "checkout" + variableMapper.find(getData.substr(0, getData.find('.')))->second + "(" + vectorMapper.find(getData.substr(0, getData.find('.')))->second + ",&" + vectorMapper.find(vectorMapper.find(getData.substr(0, getData.find('.')))->second)->second + ',' + getData.substr(0, getData.find('.')) + ");";
+                std::string updateLine = "*(" + getData.substr(0, getData.find('.')) + "+" + vectorMapper.find(getData.substr(0, getData.find('.')))->second + "++)=" + getData.substr(getData.find('(') + 1, getData.length() - getData.find('(') - 2) + ";";
+                setParserData.push_back(checkoutCall);
+                setParserData.push_back(updateLine);
+
+            }
+            else if (getData.substr(getData.find('.') + 1, 5) == "minus") { // for removing elements
+                setParserData.push_back(vectorMapper.find(getData.substr(0, getData.find('.')))->second + "--" + ';');
+
+            }
+            else if (getData.substr(getData.find('.') + 1, 4) == "show") {  // for displaying all elements
+                setParserData.push_back("show" + variableMapper.find(getData.substr(0, getData.find('.')))->second + "(" + getData.substr(0, getData.find('.')) + "," + vectorMapper.find(getData.substr(0, getData.find('.')))->second + ");");
+
+            }
+        }
+        return true;
+    }
+
     // function which parses a line
     // returns True if successfully parsed
     // returns False if error encountered from invalid tags
@@ -161,6 +222,18 @@ public:
 
                 } else {    // invalid self closing tag
                     std::cout << "Error at Line " << lineNo << ": Couldn\'t recognize tag \'" << getTagData << "\'.\n";
+                    return false;
+                }
+
+            } else if (getData.length() >= 2 && getData.substr(0, 2) == "<<") {  // dynamic memory allocation 
+                int idx = getData.find('>');
+                if (idx != std::string::npos && idx + 1 < getData.length() && getData[idx + 1] == '>') {    // valid dynamic memory allocation tag
+                    if (memoryPlay(getData.substr(2, idx - 2), lineNo) == false)
+                        return false;
+                    getData = getData.substr(idx + 1);  // removing the <<...> part, for parsing the rest(if any)
+
+                } else {    // invalid tag
+                    std::cout << "Error at Line " << lineNo << ": Invalid syntax for memory allocation.\n";
                     return false;
                 }
 
@@ -594,6 +667,9 @@ public:
         for (int i = 0; i < setParserData.size() - 1; ++i) {
             writeFile << setParserData[i] << "\n";
             if (i == 0) {
+                if (dynamicNeeded) {    // dynamic memory allocation modules
+                    writeFile << "#include \"modules/dynamicarray.h\"" << "\n";
+                }
                 for (std::string sig : functionHeaders) {   // function declarations
                     writeFile << sig << "\n";
                 }
