@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 #define predefsz 2
-int c145= 0;
+int c327= 0;
 int *checkout1(int counter,int *pre,int *ptr){
     if(counter==(*pre)){
         ptr=(int*)realloc(ptr,sizeof(int)*(*pre)*2);
@@ -34,16 +34,19 @@ void show2 (float *ptr,int counter){
 }
 void main(){
 
-int v321 = predefsz;
-float *v = (float*)malloc(sizeof(float)*v321);
-int x,i,j,tmp,a,b;
+int v120 = predefsz;
+float *v = (float*)malloc(sizeof(float)*v120);
+int x,i;
+float a;
 printf("Enter the number of elements to enter\n");
 scanf("%d",&x);
 for(i=0;i<x;i++){
 float y;
 scanf("%f",&y);
-v=checkout2(c145,&v321,v);*(v+c145++)=y;
+v=checkout2(c327,&v120,v);*(v+c327++)=y;
 }
-printf("The original Array is:");
-show2(v,c145);
+printf("The original Array is:\n");
+show2(v,c327);
+a = *(v+0);
+printf("The First element is: %f",(a));
 }
