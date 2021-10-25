@@ -1,10 +1,13 @@
 #include <stdio.h>
 
 #include "modules/dynamicarray.h"
+#define PI 3.14
 void main(){
 
 printf("Hello, World\n");
 printf("- From Koustav\n");
+float pi=PI;
+printf("pi = %f\n",pi);
 int c0 = 0;
 int v0 = SIZE;
 float *v = (float*)malloc(sizeof(float)*v0);

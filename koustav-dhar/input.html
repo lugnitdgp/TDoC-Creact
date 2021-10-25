@@ -1,6 +1,9 @@
 <htpl>
+    <@ PI 3.14>
     <main>
         <log>Hello, World\n</log><log> - From Koustav\n</log>
+        <fl pi=PI/>
+        <log>pi = ${pi}\n</log>
         <<stream::(fl) v>>
         <in x,i,j/>
         <fl tmp/>

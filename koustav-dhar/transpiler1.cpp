@@ -307,6 +307,9 @@ public:
                     return false;
                 return true;
 
+            } else if (getData[1] == '@') { // for macros
+                getData = removeSpaces(getData.substr(2, getData.length() - 3));
+                functionHeaders.push_back("#define " + getData);
             } else if (getData[1] != '/') {    // if opening tag
                 std::string getTag = stripBraces(getData);
                 if (dataMapper.find(getTag) != dataMapper.end()) {
