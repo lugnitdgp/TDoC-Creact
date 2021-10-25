@@ -1,0 +1,28 @@
+<htpl>
+    <main>
+        << stream::(in) v >>
+        <in n,i,tmp,a,b,j />
+        <log>Enter Number of Elements: </log>
+        <take n //>
+        <# f(i=0, i<n, i++)
+            <in y />
+            <take y //>
+            << v.plus(y) >>
+        #>
+        <log>Original Array: \n</log>
+        << v.show() >>
+        <# f(i=0, i<n-1, i++)
+            <# f(j=0, j<n-i-1, j++)
+                <% a=v[j] %>
+                <% b=v[j+1] %>
+                <? if(a>b)
+                    <% tmp = v[j] %>
+                    <% v[j] = v[j+1] %>
+                    <% v[j+1] = tmp %>
+                ?>
+            #>
+        #>
+        <log>Sorted Array: \n</log>
+        << v.show() >>
+    </main>
+</htpl>
