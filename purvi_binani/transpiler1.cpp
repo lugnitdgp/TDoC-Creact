@@ -641,6 +641,10 @@ void Parser(std::string getData)
             structVarCounter.insert({getData.substr(3, getData.length() - 3), getData.substr(0, 2)});
             setParserData.push_back(dataMapper.find(getData.substr(0, 2))->second + " " + getData.substr(3, getData.length() - 3) + ";");
         }
+        else if (getData.substr(0, 2) == "//" && getData.substr(getData.length() - 2, 2) == "//")
+        {
+            setParserData.push_back(getData.substr(0, getData.length() - 2));
+        }
         else if (setParserData[setParserData.size() - 1] == "printf()")
         {
             setParserData.push_back(getData);
