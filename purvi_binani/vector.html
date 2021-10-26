@@ -1,0 +1,18 @@
+<htpl>
+    <main>
+        <<stream::(fl) v>>
+        <in x,i/>
+        <fl a/>
+        <log>Enter the number of elements to enter\n</log>
+        <take x//>
+        <# f(i=0,i<x,i++)
+            <fl y/>
+            <take y//>
+            <<v.plus(y)>>
+        #>
+        <log>The original Array is:\n</log>
+        <<v.show()>>
+        <% a=v[0] %>
+        <log>The First element is: ${a}</log>
+    </main>
+</htpl>
