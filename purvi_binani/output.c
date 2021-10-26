@@ -1,15 +1,21 @@
 #include<stdio.h>
 
-struct student {
-int x;
-float y;
-};
+#include <stdlib.h>
+#include <string.h>
+#define BuffSize 2
 void main(){
 
-struct student a={1,2.5};
-struct student b=a;
-printf("%d\n",(a.x));
-printf("%f\n",(a.y));
-printf("%d\n",(b.x));
-printf("%f\n",(b.y));
+char *str = malloc(BuffSize);
+char a;
+printf("Enter string\n");
+int ch;int size = BuffSize;int i = 0;
+while ((ch = fgetc(stdin)) != '\n')
+{ str[i++] = ch;
+if (i == size + BuffSize)
+{ size += BuffSize; str = realloc(str, size); }
+}
+str[i] = 0;
+a = *(str+0);
+printf("The First element is: %c\n",(a));
+printf("The string is: %s",(str));
 }

@@ -344,6 +344,37 @@ void structBuilder(std::string getData)
     }
 }
 
+void stringHandler(std::string parse)
+{
+    headers.push_back("#include <stdlib.h>");
+    headers.push_back("#include <string.h>");
+    headers.push_back("#define BuffSize 2");
+    std::string varname = parse.substr(3, parse.length() - 3);
+    variableMapper.insert({varname, "%s"});
+    if (parse.find('=') == std::string::npos)
+    {
+        setParserData.push_back("char *" + varname + " = malloc(BuffSize);");
+    }
+    else
+    {
+        std::string value = parse.substr(parse.find('=') + 2, parse.length() - parse.find('=') - 3);
+        value += '\0';
+        setParserData.push_back("char *" + varname + " = malloc(" + std::to_string(value.length()) + ");");
+        setParserData.push_back(varname + "= \"" + value + "\"");
+    }
+}
+
+void stringInputHandler(std::string varname)
+{
+    setParserData.push_back("int ch;int size = BuffSize;int i = 0;");
+    setParserData.push_back("while ((ch = fgetc(stdin)) != '\\n')");
+    setParserData.push_back("{ " + varname + "[i++] = ch;");
+    setParserData.push_back("if (i == size + BuffSize)");
+    setParserData.push_back("{ size += BuffSize; " + varname + " = realloc(" + varname + ", size); }");
+    setParserData.push_back("}");
+    setParserData.push_back(varname + "[i] = 0;");
+}
+
 void printParser()
 {
     std::string string_const;
@@ -475,21 +506,35 @@ void Parser(std::string getData)
                 }
                 if (tmp[0] == "take")
                 {
-                    std::string tmpStr = "";
-                    setParserData.push_back(dataMapper.find(tmp[0])->second);
-                    for (int it = 1; it < tmp.size(); it++)
+                    if (variableMapper.find(tmp[1])->second == "%s")
                     {
-                        tmpStr += tmp[it] + " ";
+                        stringInputHandler(tmp[1]);
                     }
-                    setParserData.push_back(tmpStr);
+                    else
+                    {
+                        std::string tmpStr = "";
+                        setParserData.push_back(dataMapper.find(tmp[0])->second);
+                        for (int it = 1; it < tmp.size(); it++)
+                        {
+                            tmpStr += tmp[it] + " ";
+                        }
+                        setParserData.push_back(tmpStr);
+                    }
                 }
             }
             else
             {
                 getData = getData.substr(1, getData.length() - 3);
                 getData = spaceDebug(getData);
-                setParserData.push_back(dataMapper.find(getData.substr(0, 2))->second + getData.substr(2, getData.length() - 2) + ";");
-                IOparser(getData + ',');
+                if (getData.substr(0, 2) == "st")
+                {
+                    stringHandler(getData);
+                }
+                else
+                {
+                    setParserData.push_back(dataMapper.find(getData.substr(0, 2))->second + getData.substr(2, getData.length() - 2) + ";");
+                    IOparser(getData + ',');
+                }
             }
         }
         else if (getData[1] != '/')
