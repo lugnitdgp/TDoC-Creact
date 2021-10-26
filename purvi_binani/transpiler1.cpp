@@ -349,18 +349,20 @@ void stringHandler(std::string parse)
     headers.push_back("#include <stdlib.h>");
     headers.push_back("#include <string.h>");
     headers.push_back("#define BuffSize 2");
-    std::string varname = parse.substr(3, parse.length() - 3);
-    variableMapper.insert({varname, "%s"});
     if (parse.find('=') == std::string::npos)
     {
+        std::string varname = parse.substr(3, parse.length() - 3);
+        variableMapper.insert({varname, "%s"});
         setParserData.push_back("char *" + varname + " = malloc(BuffSize);");
     }
     else
     {
+
         std::string value = parse.substr(parse.find('=') + 2, parse.length() - parse.find('=') - 3);
-        value += '\0';
+        std::string varname = parse.substr(3, parse.length() - value.length() - 6);
+        variableMapper.insert({varname, "%s"});
         setParserData.push_back("char *" + varname + " = malloc(" + std::to_string(value.length()) + ");");
-        setParserData.push_back(varname + "= \"" + value + "\"");
+        setParserData.push_back(varname + "= \"" + value + "\";");
     }
 }
 
