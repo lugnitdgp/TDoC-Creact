@@ -3,10 +3,14 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <time.h>
 std::unordered_map<std::string, std::string> dataMapper;
 std::unordered_map<std::string, std::string> variableMapper;
 std::vector<std::string> setParserData;
 std::vector<std::string> functionHeader;
+std::vector<std::string> headers;
+std::vector<std::string> var_keeper;
+std::unordered_map<std::string, std::string> vector_counter;
 
 void refDataset()
 {
@@ -29,9 +33,17 @@ void writeCode (){
     { 
         writeFile<<setParserData[i]<<"\n";
         if(i==0){
+            for(int k=0;k<headers.size();k++)
+            {
+                writeFile<<headers[k]<<"\n";
+            }
             for(int k=0;k<functionHeader.size();k++)
             {
                 writeFile<<functionHeader[k]<<"\n";
+            }
+            for(int k=0;k<var_keeper.size();k++)
+            {
+                writeFile<<var_keeper[k]<<"\n";
             }
         }
     }
@@ -316,22 +328,47 @@ void Parser(std::string getData){
             stf += "{";
             setParserData.push_back(stf.substr(2, stf.length()-2));
         }
-        else if(getData[1] != '%')
+        else if(getData[1] == '%')
         {
-            std::vector<std::string> tmp;
-            std::string stf = "";
-            for(int i=2; i<getData.length()-1;i++)
+            if(getData.find('[')==std::string::npos)
             {
-                if(getData[i] != '%')
+                std::vector<std::string> tmp;
+                std::string stf = "";
+                for(int i=2; i<getData.length()-1;i++)
                 {
-                    stf = stf+getData[i];
+                    if(getData[i] != '%')
+                    {
+                        stf = stf+getData[i];
+                    }
+                    else{
+                        break;
+                    }
                 }
-                else{
-                    break;
-                }
+                stf=stf + ';'; 
+                setParserData.push_back(stf);
             }
-            stf=stf + ';'; 
-            setParserData.push_back(stf);
+            else
+            {
+                int c1 = 0, c2 = 0;
+                getData = getData.substr(2, getData.length() - 4);
+                getData = SpaceDebug(getData);
+                std::string p1 = SpaceDebug(getData.substr(0, getData.find('=')));
+                std::string p2 = SpaceDebug(getData.substr(getData.find('=') + 1, getData.length() - getData.find('=') - 1));
+                if (p1.find('[') != std::string::npos && p1.find(']') != std::string::npos)
+                {
+                    std::string var_name = p1.substr(0, p1.find('['));
+                    std::string val = p1.substr(p1.find('[') + 1, p1.find(']') - p1.find('[') - 1);
+                    p1 = "*(" + var_name + "+" + val + ")";
+                }
+                if (p2.find('[') != std::string::npos && p2.find(']') != std::string::npos)
+                {
+                    std::string var_name2 = p2.substr(0, p2.find('['));
+                    std::string val2 = p2.substr(p2.find('[') + 1, p2.find(']') - p2.find('[') - 1);
+                    p2 = "*(" + var_name2 + "+" + val2 + ")";
+                }
+                setParserData.push_back(p1 + " = " + p2 + ";");
+            }
+            
         }
         else if (getData[1] != '/')
         {
@@ -407,6 +444,60 @@ void iteratorBuilders(std::string parse)
 }
 
 
+void memoryPlay(std::string getData)
+{
+    getData = getData.substr(2, getData.length() - 4);
+    getData = SpaceDebug(getData);
+    if (getData.substr(0, 5) == "stream")
+    {
+        headers.push_back("#include<stdlib.h>");
+        headers.push_back("#define predefsz 2");
+        std::string _datatype = getData.substr(getData.find('(') + 1, getData.find(')') - getData.find('(') - 1);
+        if (_datatype == "in")
+        {
+            srand(time(0));
+            std::string varRect = SpaceDebug(getData.substr(getData.find(')') + 1, getData.length() - getData.find(')') - 1));
+            std::string sizeDef = varRect + std::to_string(rand()).substr(0, 3);
+            std::string ins_var = "c" + std::to_string(rand()).substr(0, 3);
+            vector_counter.insert({varRect, ins_var});
+            vector_counter.insert({ins_var, sizeDef});
+            functionHeader.push_back("int " + ins_var + "= 0;");
+            setParserData.push_back("int " + sizeDef + " = " + "predefsz;");
+            std::string instance1 = dataMapper.find(_datatype)->second + " " + "*" + varRect + " = (int)malloc(sizeof(int)*" + sizeDef + ");";
+
+            setParserData.push_back(instance1);
+            if (var_keeper.empty())
+            {
+                std::string ins_var1;
+                std::ifstream readFile("./modules/memoryalloc.txt");
+                while (getline(readFile, ins_var1))
+                {
+                    var_keeper.push_back(ins_var1);
+                }
+            }
+        }
+    }
+    else
+    {
+        if (getData.substr(getData.find('.') + 1, 4) == "plus")
+        {
+
+            std::string ins_var = getData.substr(0, getData.find('.')) + "=" + "checkout(" + vector_counter.find(getData.substr(0, getData.find('.')))->second + ",&" + vector_counter.find(vector_counter.find(getData.substr(0, getData.find('.')))->second)->second + "," + getData.substr(0, getData.find('.')) + ");\n";
+            std::string ins_var3 = "*(" + getData.substr(0, getData.find('.')) + "+" + vector_counter.find(getData.substr(0, getData.find('.')))->second + "++)=" + getData.substr(getData.find('(') + 1, getData.find(')') - getData.find('(') - 1) + ";";
+            setParserData.push_back(ins_var + ins_var3);
+        }
+        else if (getData.substr(getData.find('.') + 1, 5) == "minus")
+        {
+            setParserData.push_back(vector_counter.find(getData.substr(0, getData.find('.')))->second + "--" + ';');
+        }
+        else if (getData.substr(getData.find('.') + 1, 4) == "show")
+        {
+            setParserData.push_back("show(" + getData.substr(0, getData.find('.')) + "," + vector_counter.find(getData.substr(0, getData.find('.')))->second + ");");
+        }
+    }
+}
+
+
 int main(int argc, char const *argv[])
 {
     refDataset();
@@ -422,11 +513,15 @@ int main(int argc, char const *argv[])
         {
             iteratorBuilders(getSyntax);
         }
+        else if (getSyntax.substr(0, 2) == "<<")
+        {
+            memoryPlay(getSyntax);
+        }
         else{
             Parser(getSyntax);
         }
     }
     printParser();
     writeCode();
+    return 0;
 }
-
