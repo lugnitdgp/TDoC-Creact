@@ -96,7 +96,22 @@ void printParser() {
         }
         else if(setParserData[i]=="scanf")
         {
-            string_const = setParserData[i].substr(0,6) + '"' + variableMapper.find(setParserData[i+1])->second + '"' + ",&" + setParserData[i+1] + ')' + ';';
+            std::string formatSpecifiers = "", varNames = "", varName = "";
+            for(int j = 0; j<setParserData[i+1].size(); j++)
+            {
+                if(setParserData[i+1][j] != ' ')
+                {
+                    varName +=setParserData[i+1][j];
+                }
+                else
+                {
+                    formatSpecifiers+= variableMapper.find(varName)->second + " ";
+                    varName= "&" + varName;
+                    varNames+=((varNames== "")?"":",") + varName;
+                    varName="";
+                }
+            }
+            string_const = setParserData[i].substr(0,6) + '"' + formatSpecifiers.substr(0,formatSpecifiers.length()-1) + '"' + "," + varNames + ')' + ';';
             setParserData[i] = string_const;
             setParserData.erase((setParserData.begin()+i+1));
         }
@@ -165,7 +180,7 @@ void Parser(std::string getData){
                 std::string stf;
                 for (int i = 0; i < getData.length(); i++)
                 {
-                    if (getData[i] != ' ')
+                    if (getData[i] != ' ' && getData[i]!=',')
                     {
                         stf = stf + getData[i];
                     }
@@ -177,8 +192,13 @@ void Parser(std::string getData){
                     }
                 }
                 if(tmp[0]=="take"){
+                    std::string tmpStr="";
                     setParserData.push_back(dataMapper.find(tmp[0])->second);
-                    setParserData.push_back(tmp[1]);
+                    for(int it=1;it<tmp.size();it++)
+                    {
+                        tmpStr+=tmp[it]+" ";
+                    }
+                    setParserData.push_back(tmpStr);
                 }
             }
             else
@@ -188,6 +208,23 @@ void Parser(std::string getData){
                 setParserData.push_back(dataMapper.find(getData.substr(0,2))->second + getData.substr(2, getData.length() - 2) + ";");  
                 IOparser(getData);
             }
+        }
+        else if(getData[1] != '%')
+        {
+            std::vector<std::string> tmp;
+            std::string stf = "";
+            for(int i=2; i<getData.length()-1;i++)
+            {
+                if(getData[i] != '%')
+                {
+                    stf = stf+getData[i];
+                }
+                else{
+                    break;
+                }
+            }
+            stf=stf + ';'; 
+            setParserData.push_back(stf);
         }
         else if (getData[1] != '/')
         {
@@ -212,17 +249,40 @@ void Parser(std::string getData){
 }
 
 
+void conditionalBuilder (std::string parse){
+    if(parse [parse.length()-1]!='>'){
+        parse = parse.substr(2, parse.length() - 2);
+        parse = SpaceDebug(parse);
+        if(parse.substr(0.4)=="elif")
+        { 
+            std::string sf = "else if";
+            parse = sf + parse.substr(4, parse.length() - 4) + "{";
+            setParserData.push_back(parse);
+        } else {
+            setParserData.push_back(parse+"{");
+            }
+        } 
+    else 
+    {
+            setParserData.push_back("}");
+    }
+}
+
+
 int main(int argc, char const *argv[])
 {
     refDataset();
-    std::string getsyntax;
+    std::string getSyntax;
     std::ifstream readData(argv[1]);
-    while(getline(readData, getsyntax))
+    while(getline(readData, getSyntax))
     {
-        Parser(getsyntax);
-    }
-    for(auto it:setParserData){
-        std::cout<<it<<"\n";
+        getSyntax=SpaceDebug(getSyntax);
+        if(getSyntax.substr(0,2)=="<?" || getSyntax.substr(getSyntax.length()-2,2)=="?>"){
+            conditionalBuilder(getSyntax);
+        }
+        else{
+            Parser(getSyntax);
+        }
     }
     printParser();
     writeCode();

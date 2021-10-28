@@ -1,8 +1,13 @@
 <htpl>
     <main>
-        <in var1/>
-        <ch hf='p',kl='r'/>
-        <take var1//>
-        <log>This is a value ${var1}</log>
+        <in var1, i=0/>
+        <log>Enter an value \n</log>
+        <take var1 //>
+        <? if (var1%2==0)
+            <log>Even\n</log>
+        ?>
+        <? else
+            <log>Odd\n</log>
+        ?>
     </main>
 </htpl>
