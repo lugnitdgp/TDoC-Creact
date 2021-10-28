@@ -1,0 +1,16 @@
+<htpl>
+    <main>
+        <in var1, res=0/>
+        <log>Enter an value \n</log>
+        <take var1 //>
+        <fx res = fact(var1)/>        
+        <log>${res}\n</log>        
+    </main>
+    <fx in fact(in x)>    
+        <in f=1,i/>
+        <# f(i=1,i<=x, i++) 
+            <% f=f*i %>
+        #>
+        <throw f/>
+    </fact>
+</htpl>
