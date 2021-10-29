@@ -1,0 +1,31 @@
+<htpl>
+    <@ PI 3.14>
+    <main>
+        <log>Hello, World\n</log><log> - From Koustav\n</log>
+        <fl pi=PI/>
+        <log>pi = ${pi}\n</log>
+        <<stream::(fl) v>>
+        <in x,i,j/>
+        <fl tmp/>
+        <log>Enter the number of elements to enter: </log>
+        <take x/>
+        <# f(i=0;i<x;++i)
+            <fl y/>
+            <take y/>
+            <<v.plus(y)>>
+        #>
+        <log>The original array is: \n</log>
+        <<v.show()>>
+        <# f(i=0;i<x-1;++i)
+            <# f(j=0;j<x-i-1;++j)
+                <? if(v[j] > v[j+1])
+                    <% tmp=v[j] %>
+                    <% v[j]=v[j+1] %>
+                    <% v[j+1]=tmp %>
+                ?>
+            #>
+        #>
+        <log>The sorted array is: \n</log>
+        <<v.show()>>
+    </main>
+</htpl>
