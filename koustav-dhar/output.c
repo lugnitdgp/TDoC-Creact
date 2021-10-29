@@ -1,37 +1,28 @@
 #include <stdio.h>
 
-#include "modules/dynamicarray.h"
-#define PI 3.14
+int gcd_algo ( int a , int b ) ;
 void main(){
 
-printf("Hello, World\n");
-printf("- From Koustav\n");
-float pi=PI;
-printf("pi = %f\n",pi);
-int c0 = 0;
-int v0 = SIZE;
-float *v = (float*)malloc(sizeof(float)*v0);
-int x,i,j;
-float tmp;
-printf("Enter the number of elements to enter: ");
-scanf("%d",&x);
-for(i=0;i<x;++i){
-float y;
-scanf("%f",&y);
-v=checkoutfloat(c0,&v0,v);
-*(v+c0++)=y;
+int val,val1,res;
+printf("Enter the 2 values to get gcd \n");
+scanf("%d%d",&val,&val1);
+if(val>val1){
+ res=gcd_algo(val1,val);
+printf("%d",res);
 } 
-printf("The original array is: \n");
-showfloat(v,c0);
-for(i=0;i<x-1;++i){
-for(j=0;j<x-i-1;++j){
-if(v[j] > v[j+1]){
-tmp=v[j];
-v[j]=v[j+1];
-v[j+1]=tmp;
+else if(val<val1){
+ res=gcd_algo(val,val1);
+printf("%d\n",res);
 } 
+else{
+printf("%d\n",val);
 } 
+}
+int gcd_algo ( int a , int b ) {
+if(a==0){
+return  b;
 } 
-printf("The sorted array is: \n");
-showfloat(v,c0);
+else{
+return  gcd_algo(b%a,a);
+} 
 }

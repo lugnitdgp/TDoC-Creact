@@ -311,7 +311,7 @@ public:
                 getData = removeSpaces(getData.substr(2, getData.length() - 3));
                 functionHeaders.push_back("#define " + getData);
             } else if (getData[1] != '/') {    // if opening tag
-                std::string getTag = stripBraces(getData);
+                std::string getTag = removeSpaces(stripBraces(getData));
                 if (dataMapper.find(getTag) != dataMapper.end()) {
                     setParserData.push_back(dataMapper.find(getTag)->second);
                 } else {    // wrong tag, print error and exit
@@ -320,9 +320,10 @@ public:
                 }
 
             } else {    // if closing tag
-                if (getData.substr(2, 3) == "log") {    // if print tag closing
+                std::string getTagData = removeSpaces(stripBraces(getData).substr(1));
+                if (getTagData.substr(0, 3) == "log") {    // if print tag closing
                     setParserData.push_back(dataMapper.find("/log")->second);
-                } else if (getData.substr(2, 2) == "fx") {  // function closing and scope handling
+                } else if (getTagData.substr(0, 2) == "fx") {  // function closing and scope handling
                     insideFunction = false;
                     ++functionNo;
                     functionScopeVarMappers.push_back(scopeVarMapper);
@@ -335,10 +336,10 @@ public:
                     functionScopeVars.clear();
                     setParserData.push_back(dataMapper.find("/")->second);
 
-                } else if (getData.find('>') != std::string::npos && dataMapper.find(getData.substr(2, getData.find('>') - 2)) != dataMapper.end()){   // if other valid tag closing
+                } else if (dataMapper.find(getTagData) != dataMapper.end()){   // if other valid tag closing
                     setParserData.push_back(dataMapper.find("/")->second);
                 } else {    // if wrong closing tag
-                    std::cout << "Error at Line " << lineNo << ": Couldn\'t recognize tag \'" << getData.substr(2, getData.find('>') - 2) << "\'.\n";
+                    std::cout << "Error at Line " << lineNo << ": Couldn\'t recognize tag \'" << getTagData << "\'.\n";
                     return false;
                 }
 
@@ -430,10 +431,9 @@ public:
         bool closeHere = false;
         if (((getData[0] == '<' && index > neslvl + 1) || (getData[0] != '<' && index > 0)) && getData[index - 1] == '?')    // check if closing in same line or not
             len = index - pos - 1 , closeHere = true;
-
         // discard all the '?' in the closing conditional part (THIS PART WILL ALSO BE USED DURING ORDER VALIDATION FOR LATER)
         --index; --index;
-        if (index >= 0 && getData[index] == '?')
+        if (index >= 0 && getData[index] == '?' && closeHere == true)
             --index, --len;
 
         if (getData[0] == '<') {    // if opening conditional
