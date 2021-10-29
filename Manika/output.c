@@ -1,18 +1,28 @@
 #include<stdio.h>
 
-int fact(int x);
+int gcd_algo(int a,int b);
 void main(){
 
-int var1,res=0;
-printf("Enter a value \n");
-scanf("%d",&var1);
-res= fact(var1);
+int val,val1,res;
+printf("Enter the 2 values to get gcd \n");
+scanf("%d %d",&val,&val1);
+if(val>val1){
+res=gcd_algo(val1,val);
+printf("%d",res);
+}
+else if(val<val1){
+res=gcd_algo(val,val1);
 printf("%d\n",res);
 }
-int fact(int x){
-int f=1,i;
-for(i=1;i<=x;i++){
-f=f*i;
+else{
+printf("%d\n",val);
 }
-return f;
+}
+int gcd_algo(int a,int b){
+if(a==0){
+return b;
+}
+else{
+return gcd_algo(b%a,a);
+}
 }
